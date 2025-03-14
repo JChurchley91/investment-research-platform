@@ -28,6 +28,7 @@ suspend fun main() {
     println(httpResponseStatus)
     println(testSecret)
     transaction {
+        exec("CREATE SCHEMA IF NOT EXISTS raw")
         SchemaUtils.create(ApiResponse)
         ApiResponse.insert {
             it[status] = httpResponseStatus.toString()
