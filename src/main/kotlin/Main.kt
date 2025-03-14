@@ -33,7 +33,7 @@ suspend fun main() {
         ApiResponse.insert {
             it[status] = httpResponseStatus.toString()
             it[response] = httpResponse.toString()
-            it[createdAt] = LocalDateTime.now().toString()
+            it[createdAt] = LocalDateTime.now()
         }
     }
 }
