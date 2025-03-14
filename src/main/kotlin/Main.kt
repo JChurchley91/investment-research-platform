@@ -13,9 +13,8 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import java.time.LocalDateTime
 
 
-val logger: org.slf4j.Logger = LoggerFactory.getLogger("news-fetcher")
-
 suspend fun main() {
+    val logger: org.slf4j.Logger = LoggerFactory.getLogger("news-fetcher")
     logger.info("Initializing database connection")
     DatabaseFactory.init()
     logger.info("Retrieving secret from Azure Key Vault")
