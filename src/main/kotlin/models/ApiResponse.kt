@@ -1,9 +1,11 @@
 package models
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.id.IntIdTable
 
-object ApiResponse : Table("api_responses") {
-    val id = integer("id").autoIncrement()
-    val status = varchar("status", 255)
-    val response = text("response")
+const val MAX_VARCHAR_LENGTH = 255
+
+object ApiResponse : IntIdTable("api_responses") {
+    val status = varchar("status", MAX_VARCHAR_LENGTH)
+    val response = varchar("response", MAX_VARCHAR_LENGTH)
+    val createdAt = varchar("created_at", MAX_VARCHAR_LENGTH)
 }

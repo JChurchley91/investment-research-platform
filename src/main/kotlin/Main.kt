@@ -10,9 +10,7 @@ import models.ApiResponse
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SchemaUtils
-import kotlin.text.insert
-import kotlin.text.set
-import kotlin.toString
+import java.time.LocalDateTime
 
 
 val logger: org.slf4j.Logger = LoggerFactory.getLogger("news-fetcher")
@@ -25,7 +23,7 @@ suspend fun main() {
     logger.info("Sending request to ktor.io")
     val client = HttpClient(CIO)
     var httpResponse: HttpResponse = client.get("https://ktor.io/")
-    var httpResponseStatus: String = httpResponse.status.toString()
+    var httpResponseStatus: HttpStatusCode = httpResponse.status
     client.close()
     logger.info("Received response with status: ${httpResponse.status}")
     println(httpResponseStatus)
@@ -35,6 +33,7 @@ suspend fun main() {
         ApiResponse.insert {
             it[status] = httpResponseStatus.toString()
             it[response] = httpResponse.toString()
+            it[createdAt] = LocalDateTime.now().toString()
         }
     }
 }
