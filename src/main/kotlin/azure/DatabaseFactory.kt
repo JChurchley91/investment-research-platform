@@ -1,13 +1,12 @@
 package azure
 
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Properties
 
 object DatabaseFactory {
     fun init() {
         val props = Properties().apply {
-            load(this::class.java.classLoader.getResourceAsStream("database.properties"))
+            load(Thread.currentThread().contextClassLoader.getResourceAsStream("database.properties"))
         }
         Database.connect(
             url = props.getProperty("db.url"),
@@ -16,7 +15,4 @@ object DatabaseFactory {
             password = props.getProperty("db.password")
         )
     }
-
-    fun <T> dbQuery(block: () -> T): T =
-        transaction { block() }
 }
