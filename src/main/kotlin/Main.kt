@@ -12,11 +12,11 @@ fun main() {
                 Triple(
                     trendingNews::callApi,
                     trendingNews::taskSchedule,
-                    trendingNews::taskName,
+                    trendingNews.taskName,
                 ),
             ),
         )
     } catch (exception: Exception) {
-        println("Error occured during application runtime: $exception")
+        println("Error occurred during application runtime: $exception")
     }
 }

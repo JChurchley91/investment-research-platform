@@ -13,12 +13,11 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.concurrent.TimeUnit
 
 class TrendingNews {
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     val taskName: String = "TrendingNews"
-    val taskSchedule: Long = TimeUnit.MINUTES.toMillis(1)
+    val taskSchedule: String = "* * * * *"
     val bingNewsApiKey: String = KeyVaultClient.getSecret("test-secret")
 
     fun initialize() {

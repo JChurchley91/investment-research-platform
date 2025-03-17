@@ -27,6 +27,7 @@ dependencies {
     implementation("org.quartz-scheduler:quartz:2.3.2")
     implementation("com.azure:azure-identity:1.12.2")
     implementation("com.azure:azure-security-keyvault-secrets:4.3.0")
+    implementation("com.cronutils:cron-utils:9.1.6")
 }
 
 tasks.test {
