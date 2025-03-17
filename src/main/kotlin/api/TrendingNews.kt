@@ -1,7 +1,9 @@
 package api
 
 import gcp.DatabaseFactory
+import gcp.SecretManager
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -12,13 +14,14 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import gcp.SecretManager
 
 class TrendingNews {
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "* * * * *"
-    val googleSearchKey: String = SecretManager().getSecret("google-search")
+    val apiKey = SecretManager().getSecret("newsdata-api-key")
+    val cryptoCoins = listOf("BTC", "ETC", "ADA", "XRP")
+    val apiUrl: String = "https://newsdata.io/api/1/news?"
 
     fun initialize() {
         try {
@@ -36,21 +39,29 @@ class TrendingNews {
         try {
             DatabaseFactory.init()
             val client = HttpClient(CIO)
-            val httpResponse: HttpResponse = client.get("https://ktor.io/")
-            val httpResponseStatus: HttpStatusCode = httpResponse.status
-            client.close()
 
-            transaction {
-                exec("CREATE SCHEMA IF NOT EXISTS raw")
-                SchemaUtils.create(ApiResponse)
-                ApiResponse.insert {
-                    it[status] = httpResponseStatus.toString()
-                    it[response] = httpResponse.toString()
-                    it[createdAt] = LocalDateTime.now()
+            for (coin in cryptoCoins) {
+                val httpResponse: HttpResponse =
+                    client.get(
+                        "${apiUrl}apikey=$apiKey&q=$coin&country=us&language=en&category=technology",
+                    )
+                val httpResponseStatus: HttpStatusCode = httpResponse.status
+                val httpResponseBody: String = httpResponse.body()
+
+                println(httpResponseBody)
+
+                transaction {
+                    exec("CREATE SCHEMA IF NOT EXISTS raw")
+                    SchemaUtils.create(ApiResponse)
+                    ApiResponse.insert {
+                        it[status] = httpResponseStatus.toString()
+                        it[response] = httpResponse.toString()
+                        it[createdAt] = LocalDateTime.now()
+                    }
                 }
             }
         } catch (exception: Exception) {
-            logger.error("Error calling Bing News API: $exception")
+            logger.error("Error calling API: $exception")
         }
     }
 }
