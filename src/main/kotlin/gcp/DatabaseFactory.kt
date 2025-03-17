@@ -1,4 +1,4 @@
-package azure
+package gcp
 
 import org.jetbrains.exposed.sql.Database
 import java.util.Properties

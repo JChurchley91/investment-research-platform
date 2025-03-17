@@ -1,7 +1,6 @@
 package api
 
-import azure.DatabaseFactory
-import azure.KeyVaultClient
+import gcp.DatabaseFactory
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -13,12 +12,13 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import gcp.SecretManager
 
 class TrendingNews {
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "* * * * *"
-    val bingNewsApiKey: String = KeyVaultClient.getSecret("test-secret")
+    val googleSearchKey: String = SecretManager().getSecret("google-search")
 
     fun initialize() {
         try {
