@@ -9,8 +9,8 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
-import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KProperty0
+import kotlin.reflect.KSuspendFunction0
 
 class Scheduler {
     private val timer = Timer()
@@ -29,25 +29,32 @@ class Scheduler {
         }
     }
 
-    private fun scheduleTask(task: KSuspendFunction0<Unit>, executionTime: ExecutionTime, taskName: String) {
+    private fun scheduleTask(
+        task: KSuspendFunction0<Unit>,
+        executionTime: ExecutionTime,
+        taskName: String,
+    ) {
         val nextExecution = executionTime.nextExecution(ZonedDateTime.now())
         if (nextExecution.isPresent) {
             val delay = nextExecution.get().toInstant().toEpochMilli() - System.currentTimeMillis()
-            timer.schedule(object : TimerTask() {
-                override fun run() {
-                    runBlocking {
-                        launch {
-                            try {
-                                task()
-                                logger.info("Task $taskName executed successfully")
-                            } catch (exception: Exception) {
-                                logger.error("Error executing task $taskName: $exception")
+            timer.schedule(
+                object : TimerTask() {
+                    override fun run() {
+                        runBlocking {
+                            launch {
+                                try {
+                                    task()
+                                    logger.info("Task $taskName executed successfully")
+                                } catch (exception: Exception) {
+                                    logger.error("Error executing task $taskName: $exception")
+                                }
                             }
                         }
+                        scheduleTask(task, executionTime, taskName) // Reschedule the task
                     }
-                    scheduleTask(task, executionTime, taskName) // Reschedule the task
-                }
-            }, delay)
+                },
+                delay,
+            )
         }
     }
 }
