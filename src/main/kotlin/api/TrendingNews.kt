@@ -25,6 +25,11 @@ class TrendingNews {
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "* * * * *"
     val today: LocalDate = LocalDate.now()
+    val defaultJson = Json {
+        prettyPrint = true
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     private val apiKey = SecretManager().getSecret("newsdata-api-key")
     private val cryptoCoins = listOf("BTC", "ETC", "ADA", "XRP")
@@ -34,7 +39,7 @@ class TrendingNews {
     data class Article(val results: List<ArticleResult>)
 
     @Serializable
-    data class ArticleResult(val title: String)
+    data class ArticleResult(val title: String, val link: String)
 
     fun initialize() {
         try {
@@ -52,13 +57,6 @@ class TrendingNews {
     suspend fun callApi() = try {
         DatabaseFactory.init()
         val client = HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
-            }
         }
 
         for (coin in cryptoCoins) {
@@ -68,10 +66,10 @@ class TrendingNews {
                 )
             val httpResponseStatus: HttpStatusCode = httpResponse.status
             val httpResponseBody: String = httpResponse.body()
-            val article: Article = Json {
-                ignoreUnknownKeys = true
-            }.decodeFromString(httpResponseBody)
-            println("$coin - $article")
+            val article: Article = defaultJson.decodeFromString(httpResponseBody)
+            val articleTitle: String = article.results[0].title
+            val articleLink: String = article.results[0].link
+            println("$coin - $articleTitle - $articleLink")
 
             transaction {
                 ApiResponses.insert {
