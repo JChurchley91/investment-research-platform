@@ -19,7 +19,19 @@ class TrendingNews {
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     val taskName: String = "TrendingNews"
     val taskSchedule: Long = TimeUnit.MINUTES.toMillis(1)
-    val bingNewsKey: String = KeyVaultClient.getSecret("test-secret")
+    val bingNewsApiKey: String = KeyVaultClient.getSecret("test-secret")
+
+    fun initialize() {
+        try {
+            DatabaseFactory.init()
+            transaction {
+                exec("CREATE SCHEMA IF NOT EXISTS raw")
+                SchemaUtils.create(ApiResponse)
+            }
+        } catch (exception: Exception) {
+            logger.error("Error initializing database: $exception")
+        }
+    }
 
     suspend fun callApi() {
         try {
