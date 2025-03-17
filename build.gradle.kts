@@ -3,6 +3,7 @@ val logBackVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 group = "org.example"
@@ -27,6 +28,9 @@ dependencies {
     implementation("org.quartz-scheduler:quartz:2.3.2")
     implementation("com.cronutils:cron-utils:9.1.6")
     implementation("com.google.cloud:google-cloud-secretmanager:2.58.0")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.2")
 }
 
 tasks.test {

@@ -5,17 +5,21 @@ import gcp.SecretManager
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import models.ApiResponses
 import models.ApiResponsesBody
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class TrendingNews {
     val taskName: String = "TrendingNews"
@@ -25,6 +29,12 @@ class TrendingNews {
     private val apiKey = SecretManager().getSecret("newsdata-api-key")
     private val cryptoCoins = listOf("BTC", "ETC", "ADA", "XRP")
     private val apiUrl: String = "https://newsdata.io/api/1/news?"
+
+    @Serializable
+    data class Article(val results: List<ArticleResult>)
+
+    @Serializable
+    data class ArticleResult(val title: String)
 
     fun initialize() {
         try {
@@ -39,30 +49,40 @@ class TrendingNews {
         }
     }
 
-    suspend fun callApi() {
-        try {
-            DatabaseFactory.init()
-            val client = HttpClient(CIO)
+    suspend fun callApi() = try {
+        DatabaseFactory.init()
+        val client = HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
 
-            for (coin in cryptoCoins) {
-                val httpResponse: HttpResponse =
-                    client.get(
-                        "${apiUrl}apikey=$apiKey&q=$coin&country=us&language=en&category=technology",
-                    )
-                val httpResponseStatus: HttpStatusCode = httpResponse.status
-                val httpResponseBody: String = httpResponse.body()
+        for (coin in cryptoCoins) {
+            val httpResponse: HttpResponse =
+                client.get(
+                    "${apiUrl}apikey=$apiKey&q=$coin&country=us&language=en&category=technology&size=1",
+                )
+            val httpResponseStatus: HttpStatusCode = httpResponse.status
+            val httpResponseBody: String = httpResponse.body()
+            val article: Article = Json {
+                ignoreUnknownKeys = true
+            }.decodeFromString(httpResponseBody)
+            println("$coin - $article")
 
-                transaction {
-                    ApiResponses.insert {
-                        it[apiResponseKey] = "$coin-$today"
-                        it[status] = httpResponseStatus.toString()
-                        it[response] = httpResponse.toString()
-                        it[createdAt] = LocalDateTime.now()
-                    }
+            transaction {
+                ApiResponses.insert {
+                    it[apiResponseKey] = "$coin-$today"
+                    it[status] = httpResponseStatus.toString()
+                    it[response] = httpResponse.toString()
+                    it[createdAt] = LocalDateTime.now()
                 }
             }
-        } catch (exception: Exception) {
-            logger.error("Error calling API: $exception")
         }
+    } catch (exception: Exception) {
+        logger.error("Error calling API: $exception")
     }
 }
