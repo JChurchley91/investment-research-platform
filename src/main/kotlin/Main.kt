@@ -11,7 +11,7 @@ fun main() {
         logger.info("Initializing Database; Creating Schemas & Tables")
         trendingNews.initialize()
 
-        logger.info("Initializing Scheduler; Starting Tasks")
+        logger.info("Initializing Scheduler; Scheduling Tasks")
         val scheduler = Scheduler()
         scheduler.start(
             listOf(

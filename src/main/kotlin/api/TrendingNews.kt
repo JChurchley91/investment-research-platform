@@ -83,6 +83,7 @@ class TrendingNews {
                         logger.info("Inserting API response into database; $coin-$today")
                         ApiResponses.insert {
                             it[apiResponseKey] = "$coin-$today"
+                            it[task] = taskName
                             it[status] = httpResponse.status.toString()
                             it[response] = httpResponse.toString()
                             it[createdAt] = LocalDateTime.now()
@@ -90,6 +91,7 @@ class TrendingNews {
                         ApiResponsesBody.insert {
                             logger.info("Inserting API response body into database; $coin-$today")
                             it[apiResponseKey] = "$coin-$today"
+                            it[task] = taskName
                             it[articleTitle] = article.results[0].title.toString()
                             it[articleLink] = article.results[0].link.toString()
                             it[createdAt] = LocalDateTime.now()
