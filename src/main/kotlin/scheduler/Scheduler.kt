@@ -20,6 +20,7 @@ class Scheduler {
     fun start(tasks: List<Triple<KSuspendFunction0<Unit>, KProperty0<String>, String>>) {
         try {
             tasks.forEach { (task, cronExpression, taskName) ->
+                logger.info("Scheduling Task $taskName; Cron Expression - ${cronExpression.get()}")
                 val cron: Cron = cronParser.parse(cronExpression.get())
                 val executionTime = ExecutionTime.forCron(cron)
                 scheduleTask(task, executionTime, taskName)
