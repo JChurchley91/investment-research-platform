@@ -5,11 +5,7 @@
         </encoder>
     </appender>
 
-    <logger name="news-fetcher" level="info" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-
-    <root level="off">
+    <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
