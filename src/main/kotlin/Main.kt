@@ -18,7 +18,7 @@ fun main() {
                 Triple(
                     trendingNews::callApi,
                     trendingNews::taskSchedule,
-                    trendingNews.taskName,
+                    trendingNews::taskName,
                 ),
             ),
         )
