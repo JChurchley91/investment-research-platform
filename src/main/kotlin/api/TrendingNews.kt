@@ -5,11 +5,9 @@ import gcp.SecretManager
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import models.ApiResponses
@@ -25,21 +23,27 @@ class TrendingNews {
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "* * * * *"
     val today: LocalDate = LocalDate.now()
-    val defaultJson = Json {
-        prettyPrint = true
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
+    val defaultJson =
+        Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
     private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
     private val apiKey = SecretManager().getSecret("newsdata-api-key")
-    private val cryptoCoins = listOf("BTC", "ETC", "ADA", "XRP")
+    private val cryptoCoins = listOf("BTC", "ETH", "ADA", "XRP")
     private val apiUrl: String = "https://newsdata.io/api/1/news?"
 
     @Serializable
-    data class Article(val results: List<ArticleResult>)
+    data class Article(
+        val results: List<ArticleResult>,
+    )
 
     @Serializable
-    data class ArticleResult(val title: String, val link: String)
+    data class ArticleResult(
+        val title: String,
+        val link: String,
+    )
 
     fun initialize() {
         try {
@@ -54,33 +58,36 @@ class TrendingNews {
         }
     }
 
-    suspend fun callApi() = try {
-        DatabaseFactory.init()
-        val client = HttpClient(CIO) {
-        }
+    suspend fun callApi() =
+        try {
+            DatabaseFactory.init()
+            val client =
+                HttpClient(CIO) {
+                }
 
-        for (coin in cryptoCoins) {
-            val httpResponse: HttpResponse =
-                client.get(
-                    "${apiUrl}apikey=$apiKey&q=$coin&country=us&language=en&category=technology&size=1",
-                )
-            val httpResponseStatus: HttpStatusCode = httpResponse.status
-            val httpResponseBody: String = httpResponse.body()
-            val article: Article = defaultJson.decodeFromString(httpResponseBody)
-            val articleTitle: String = article.results[0].title
-            val articleLink: String = article.results[0].link
-            println("$coin - $articleTitle - $articleLink")
+            for (coin in cryptoCoins) {
+                val httpResponse: HttpResponse =
+                    client.get(
+                        "${apiUrl}apikey=$apiKey&q=$coin&country=us&language=en&category=technology&size=1",
+                    )
+                val article: Article = defaultJson.decodeFromString(httpResponse.body())
 
-            transaction {
-                ApiResponses.insert {
-                    it[apiResponseKey] = "$coin-$today"
-                    it[status] = httpResponseStatus.toString()
-                    it[response] = httpResponse.toString()
-                    it[createdAt] = LocalDateTime.now()
+                transaction {
+                    ApiResponses.insert {
+                        it[apiResponseKey] = "$coin-$today"
+                        it[status] = httpResponse.status.toString()
+                        it[response] = httpResponse.toString()
+                        it[createdAt] = LocalDateTime.now()
+                    }
+                    ApiResponsesBody.insert {
+                        it[apiResponseKey] = "$coin-$today"
+                        it[articleTitle] = article.results[0].title.toString()
+                        it[articleLink] = article.results[0].link.toString()
+                        it[createdAt] = LocalDateTime.now()
+                    }
                 }
             }
+        } catch (exception: Exception) {
+            logger.error("Error calling API: $exception")
         }
-    } catch (exception: Exception) {
-        logger.error("Error calling API: $exception")
-    }
 }

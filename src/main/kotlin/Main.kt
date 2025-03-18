@@ -13,8 +13,8 @@ fun main() {
                     trendingNews::callApi,
                     trendingNews::taskSchedule,
                     trendingNews.taskName,
-                )
-            )
+                ),
+            ),
         )
     } catch (exception: Exception) {
         println("Error occurred during application runtime: $exception")
