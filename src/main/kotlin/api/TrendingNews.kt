@@ -11,7 +11,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import models.ApiResponses
 import models.ApiResponsesBody
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -44,19 +43,6 @@ class TrendingNews {
         val title: String,
         val link: String,
     )
-
-    fun initialize() {
-        try {
-            DatabaseFactory.init()
-            transaction {
-                exec("CREATE SCHEMA IF NOT EXISTS raw")
-                SchemaUtils.create(ApiResponses)
-                SchemaUtils.create(ApiResponsesBody)
-            }
-        } catch (exception: Exception) {
-            logger.error("Error initializing database: $exception")
-        }
-    }
 
     suspend fun callApi() =
         try {
