@@ -1,8 +1,9 @@
-import api.Prices
+import api.DailyPrices
 import api.TrendingNews
 import gcp.DatabaseFactory
 import models.ApiResponses
-import models.ApiResponsesBody
+import models.DailyCoinPrices
+import models.TrendingNewsArticles
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
@@ -17,7 +18,8 @@ fun initializeDatabase() {
         transaction {
             exec("CREATE SCHEMA IF NOT EXISTS raw")
             SchemaUtils.create(ApiResponses)
-            SchemaUtils.create(ApiResponsesBody)
+            SchemaUtils.create(TrendingNewsArticles)
+            SchemaUtils.create(DailyCoinPrices)
         }
     } catch (exception: Exception) {
         logger.error("Error initializing database: $exception")
@@ -42,9 +44,9 @@ fun main() {
                     trendingNews::taskName,
                 ),
                 Triple(
-                    Prices()::callApi,
-                    Prices()::taskSchedule,
-                    Prices()::taskName,
+                    DailyPrices()::callApi,
+                    DailyPrices()::taskSchedule,
+                    DailyPrices()::taskName,
                 ),
             ),
         )

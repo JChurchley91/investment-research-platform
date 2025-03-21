@@ -9,14 +9,17 @@ import io.ktor.client.statement.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import logger
+import models.ApiResponses
+import models.DailyCoinPrices
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.math.round
-import kotlin.text.get
-import kotlin.times
 
-class Prices {
+class DailyPrices {
     val taskName: String = "Prices"
     val taskSchedule: String = "* * * * *"
     val today: LocalDate = LocalDate.now()
@@ -26,7 +29,7 @@ class Prices {
             isLenient = true
             ignoreUnknownKeys = true
         }
-    private val logger = LoggerFactory.getLogger(Prices::class.java)
+    private val logger = LoggerFactory.getLogger(DailyPrices::class.java)
     private val apiKey = SecretManager().getSecret("coinmarketcap-api-key")
     private val cryptoCoins = listOf("BTC", "ETH", "ADA", "XRP")
     private val apiUrl: String = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
@@ -45,7 +48,6 @@ class Prices {
     data class GBP(
         val price: Double,
         @SerialName("percent_change_1h") val percentChange24H: Double,
-        @SerialName("last_updated") val lastUpdated: String,
     )
 
     suspend fun callApi() =
@@ -70,7 +72,36 @@ class Prices {
                 if (gbpData != null) {
                     val price: Double = round(gbpData.price * 100) / 100
                     val percentChange24H: Double = round(gbpData.percentChange24H * 100) / 100
-                    val lastUpdated: String = gbpData.lastUpdated
+
+                    transaction {
+                        val existingResponse =
+                            ApiResponses
+                                .select {
+                                    ApiResponses.apiResponseTaskKey eq
+                                        "$coin-$today-$taskName"
+                                }.count()
+
+                        if (existingResponse > 0) {
+                            logger.info("API Response Already Exists; $coin-$today-$taskName")
+                            return@transaction
+                        } else {
+                            ApiResponses.insert {
+                                it[apiResponseKey] = "$coin-$today"
+                                it[apiResponseTaskKey] = "$coin-$today-$taskName"
+                                it[task] = taskName
+                                it[status] = httpResponse.status.toString()
+                                it[response] = httpResponse.toString()
+                                it[createdAt] = LocalDateTime.now()
+                            }
+                            DailyCoinPrices.insert {
+                                it[apiResponseKey] = "$coin-$today"
+                                it[task] = taskName
+                                it[dailyCoinPrice] = price
+                                it[percentageChange24H] = percentChange24H
+                                it[createdAt] = LocalDateTime.now()
+                            }
+                        }
+                    }
                 } else {
                     logger.warn("GBP data not found for $coin")
                 }

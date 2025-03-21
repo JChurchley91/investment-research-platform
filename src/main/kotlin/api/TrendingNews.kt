@@ -9,7 +9,7 @@ import io.ktor.client.statement.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import models.ApiResponses
-import models.ApiResponsesBody
+import models.TrendingNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -59,22 +59,26 @@ class TrendingNews {
                 val article: Article = defaultJson.decodeFromString(httpResponse.body())
 
                 transaction {
-                    val existingResponse = ApiResponses.select { ApiResponses.apiResponseKey eq "$coin-$today" }.count()
+                    val existingResponse =
+                        ApiResponses
+                            .select {
+                                ApiResponses.apiResponseTaskKey eq
+                                    "$coin-$today-$taskName"
+                            }.count()
 
                     if (existingResponse > 0) {
-                        logger.info("API Response Already Exists; $coin-$today")
+                        logger.info("API Response Already Exists; $coin-$today-$taskName")
                         return@transaction
                     } else {
-                        logger.info("Inserting API response into database; $coin-$today")
                         ApiResponses.insert {
                             it[apiResponseKey] = "$coin-$today"
+                            it[apiResponseTaskKey] = "$coin-$today-$taskName"
                             it[task] = taskName
                             it[status] = httpResponse.status.toString()
                             it[response] = httpResponse.toString()
                             it[createdAt] = LocalDateTime.now()
                         }
-                        ApiResponsesBody.insert {
-                            logger.info("Inserting API response body into database; $coin-$today")
+                        TrendingNewsArticles.insert {
                             it[apiResponseKey] = "$coin-$today"
                             it[task] = taskName
                             it[articleTitle] = article.results[0].title.toString()
