@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 class TrendingNews {
     val taskName: String = "TrendingNews"
-    val taskSchedule: String = "0 12 * * *"
+    val taskSchedule: String = "0 10 * * *"
     val today: LocalDate = LocalDate.now()
     val defaultJson =
         Json {

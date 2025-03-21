@@ -21,7 +21,7 @@ import kotlin.math.round
 
 class DailyPrices {
     val taskName: String = "Prices"
-    val taskSchedule: String = "* * * * *"
+    val taskSchedule: String = "0 9 * * *"
     val today: LocalDate = LocalDate.now()
     val defaultJson =
         Json {
