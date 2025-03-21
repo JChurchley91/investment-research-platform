@@ -28,7 +28,6 @@ fun initializeDatabase() {
 
 fun main() {
     try {
-        val trendingNews = TrendingNews()
         logger.info("Research Platform Initialized; Starting Application")
 
         logger.info("Initializing Database; Creating Schemas & Tables")
@@ -39,9 +38,9 @@ fun main() {
         scheduler.start(
             listOf(
                 Triple(
-                    trendingNews::callApi,
-                    trendingNews::taskSchedule,
-                    trendingNews::taskName,
+                    TrendingNews()::callApi,
+                    TrendingNews()::taskSchedule,
+                    TrendingNews()::taskName,
                 ),
                 Triple(
                     DailyPrices()::callApi,
