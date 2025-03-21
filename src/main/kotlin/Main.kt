@@ -1,12 +1,13 @@
+import api.Prices
 import api.TrendingNews
 import gcp.DatabaseFactory
 import models.ApiResponses
 import models.ApiResponsesBody
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import scheduler.Scheduler
-import org.slf4j.Logger
 
 val logger: Logger = LoggerFactory.getLogger("Main")
 
@@ -39,6 +40,11 @@ fun main() {
                     trendingNews::callApi,
                     trendingNews::taskSchedule,
                     trendingNews::taskName,
+                ),
+                Triple(
+                    Prices()::callApi,
+                    Prices()::taskSchedule,
+                    Prices()::taskName,
                 ),
             ),
         )

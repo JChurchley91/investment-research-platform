@@ -1,6 +1,5 @@
 package api
 
-import gcp.DatabaseFactory
 import gcp.SecretManager
 import io.ktor.client.*
 import io.ktor.client.call.*
