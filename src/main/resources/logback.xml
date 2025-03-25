@@ -8,4 +8,8 @@
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
+
+    <!-- Exclude Azure logs -->
+    <logger name="com.azure" level="ERROR" />
+
 </configuration>

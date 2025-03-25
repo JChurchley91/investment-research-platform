@@ -1,6 +1,6 @@
 import api.DailyPrices
 import api.TrendingNews
-import gcp.DatabaseFactory
+import azure.DatabaseFactory
 import models.ApiResponses
 import models.DailyCoinPrices
 import models.TrendingNewsArticles
