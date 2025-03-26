@@ -6,8 +6,8 @@ import api.SharePricesTask
 import azure.DatabaseFactory
 import models.ApiResponses
 import models.DailyCoinPrices
+import models.DailyNewsArticles
 import models.DailySharePrices
-import models.TrendingNewsArticles
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -26,7 +26,7 @@ class AppConfig {
     fun getDatabaseTables(): List<IntIdTable> =
         listOf(
             ApiResponses,
-            TrendingNewsArticles,
+            DailyNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
         )
@@ -34,6 +34,10 @@ class AppConfig {
     fun getSharePriceTickers(): List<String> =
         listOf(
             "AAPL",
+            "GOOGL",
+            "AMZN",
+            "MSFT",
+            "META",
         )
 
     fun getCryptoCoins(): List<String> =
