@@ -1,6 +1,7 @@
 package api
 
 import azure.SecretManager
+import config.AppConfig
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -17,17 +18,19 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class TrendingNews {
+class DailyNewsTask {
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "0 10 * * *"
     val today: LocalDate = LocalDate.now()
+    val appConfig: AppConfig = AppConfig()
+    val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val defaultJson =
         Json {
             prettyPrint = true
             isLenient = true
             ignoreUnknownKeys = true
         }
-    private val logger = LoggerFactory.getLogger(TrendingNews::class.java)
+    private val logger = LoggerFactory.getLogger(DailyNewsTask::class.java)
     private val apiKey = SecretManager().getSecret("newsdata-api-key")
     private val cryptoCoins = listOf("BTC", "ETH", "ADA", "XRP")
     private val apiUrl: String = "https://newsdata.io/api/1/news?"

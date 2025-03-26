@@ -4,12 +4,12 @@ import com.cronutils.model.Cron
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
+import config.TaskConfig
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
-import kotlin.reflect.KProperty0
 import kotlin.reflect.KSuspendFunction0
 
 class Scheduler {
@@ -17,13 +17,14 @@ class Scheduler {
     private val logger = LoggerFactory.getLogger(Scheduler::class.java)
     private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(com.cronutils.model.CronType.UNIX))
 
-    fun start(tasks: List<Triple<KSuspendFunction0<Unit>, KProperty0<String>, KProperty0<String>>>) {
+    fun start(tasks: List<TaskConfig>) {
         try {
-            tasks.forEach { (task, cronExpression, taskName) ->
-                logger.info("Scheduling Task ${taskName.get()}; Cron Expression - ${cronExpression.get()}")
+            tasks.forEach { (task, cronExpression, taskSchedule, taskParameters) ->
+                logger.info("Scheduling Task ${taskSchedule.get()}; Cron Expression - ${cronExpression.get()}")
+                logger.info("Task Parameters: ${taskParameters.get()}")
                 val cron: Cron = cronParser.parse(cronExpression.get())
                 val executionTime = ExecutionTime.forCron(cron)
-                scheduleTask(task, executionTime, taskName.get())
+                scheduleTask(task, executionTime, taskSchedule.get())
             }
         } catch (exception: Exception) {
             logger.error("Error scheduling tasks: $exception")
