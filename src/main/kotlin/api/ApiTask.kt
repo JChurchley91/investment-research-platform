@@ -46,7 +46,7 @@ open class ApiTask(
         item: String,
         httpResponse: HttpResponse,
     ) {
-        logger.info("Inserting api response data for $item; $yesterday")
+        logger.info("Inserting API Response Data For $item-$yesterday-$taskName")
         ApiResponses.insert {
             it[apiResponseKey] = "$item-$yesterday"
             it[apiResponseTaskKey] = "$item-$yesterday-$taskName"
