@@ -1,5 +1,6 @@
 package api
 
+import config.sharePriceTickers
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
@@ -20,20 +21,6 @@ class SharePricesTask :
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {
-    val tickers =
-        listOf(
-            "AAPL",
-            "MSFT",
-            "NVDA",
-            "AMZN",
-            "AVGO",
-            "META",
-            "NFLX",
-            "COST",
-            "GOOGL",
-            "TSLA",
-        )
-
     @Serializable
     data class TimeSeriesDaily(
         @SerialName("Time Series (Daily)") val timeSeriesDaily: Map<String, JsonObject>,
@@ -62,7 +49,7 @@ class SharePricesTask :
 
     suspend fun callApi() {
         logger.info("Calling API; Fetching Prices")
-        for (ticker in tickers) {
+        for (ticker in sharePriceTickers) {
             logger.info("Fetching prices for $ticker; $yesterday")
             val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$ticker&apikey=$apiKey")
             val responseBody: String = httpResponse.body()

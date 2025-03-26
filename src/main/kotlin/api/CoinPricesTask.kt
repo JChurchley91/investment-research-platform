@@ -1,5 +1,6 @@
 package api
 
+import config.cryptoCoins
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -20,19 +21,6 @@ class CoinPricesTask :
         apiUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
     ) {
     val today: LocalDate = LocalDate.now()
-    val cryptoCoins =
-        listOf(
-            "BTC",
-            "ETH",
-            "ADA",
-            "XRP",
-            "SOL",
-            "DOT",
-            "DOGE",
-            "LUNA",
-            "AVAX",
-            "UNI",
-        )
 
     @Serializable
     data class PriceData(

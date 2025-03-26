@@ -1,6 +1,6 @@
 import api.CoinPricesTask
-import api.SharePricesTask
 import api.DailyNewsTask
+import api.SharePricesTask
 import azure.DatabaseFactory
 import models.ApiResponses
 import models.DailyCoinPrices
