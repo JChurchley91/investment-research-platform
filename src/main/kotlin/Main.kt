@@ -1,8 +1,10 @@
-import api.DailyPrices
-import api.TrendingNews
+import api.CoinPricesTask
+import api.SharePricesTask
+import api.DailyNewsTask
 import azure.DatabaseFactory
 import models.ApiResponses
 import models.DailyCoinPrices
+import models.DailySharePrices
 import models.TrendingNewsArticles
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -20,6 +22,7 @@ fun initializeDatabase() {
             SchemaUtils.create(ApiResponses)
             SchemaUtils.create(TrendingNewsArticles)
             SchemaUtils.create(DailyCoinPrices)
+            SchemaUtils.create(DailySharePrices)
         }
     } catch (exception: Exception) {
         logger.error("Error initializing database: $exception")
@@ -29,23 +32,26 @@ fun initializeDatabase() {
 fun main() {
     try {
         logger.info("Research Platform Initialized; Starting Application")
-
         logger.info("Initializing Database; Creating Schemas & Tables")
         initializeDatabase()
-
         logger.info("Initializing Scheduler; Scheduling Tasks")
         val scheduler = Scheduler()
         scheduler.start(
             listOf(
                 Triple(
-                    TrendingNews()::callApi,
-                    TrendingNews()::taskSchedule,
-                    TrendingNews()::taskName,
+                    DailyNewsTask()::callApi,
+                    DailyNewsTask()::taskSchedule,
+                    DailyNewsTask()::taskName,
                 ),
                 Triple(
-                    DailyPrices()::callApi,
-                    DailyPrices()::taskSchedule,
-                    DailyPrices()::taskName,
+                    CoinPricesTask()::callApi,
+                    CoinPricesTask()::taskSchedule,
+                    CoinPricesTask()::taskName,
+                ),
+                Triple(
+                    SharePricesTask()::callApi,
+                    SharePricesTask()::taskSchedule,
+                    SharePricesTask()::taskName,
                 ),
             ),
         )

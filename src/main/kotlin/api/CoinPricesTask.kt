@@ -1,38 +1,38 @@
 package api
 
-import azure.SecretManager
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import models.ApiResponses
 import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.round
 
-class DailyPrices {
-    val taskName: String = "Prices"
-    val taskSchedule: String = "0 9 * * *"
+class CoinPricesTask :
+    ApiTask(
+        taskName = "coinPrices",
+        taskSchedule = "0 9 * * *",
+        apiKeyName = "coinmarketcap-api-key",
+        apiUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
+    ) {
     val today: LocalDate = LocalDate.now()
-    val defaultJson =
-        Json {
-            prettyPrint = true
-            isLenient = true
-            ignoreUnknownKeys = true
-        }
-    private val logger = LoggerFactory.getLogger(DailyPrices::class.java)
-    private val apiKey = SecretManager().getSecret("coinmarketcap-api-key")
-    private val cryptoCoins = listOf("BTC", "ETH", "ADA", "XRP")
-    private val apiUrl: String = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+    val cryptoCoins =
+        listOf(
+            "BTC",
+            "ETH",
+            "ADA",
+            "XRP",
+            "SOL",
+            "DOT",
+            "DOGE",
+            "LUNA",
+            "AVAX",
+            "UNI",
+        )
 
     @Serializable
     data class PriceData(
@@ -50,12 +50,24 @@ class DailyPrices {
         @SerialName("percent_change_1h") val percentChange24H: Double,
     )
 
+    fun insertCoinPrices(
+        coin: String,
+        price: Double,
+        percentChange24H: Double,
+    ) {
+        logger.info("Inserting coin price data for $coin; $today")
+        DailyCoinPrices.insert {
+            it[apiResponseKey] = "$coin-$today"
+            it[task] = taskName
+            it[dailyCoinPrice] = price
+            it[percentageChange24H] = percentChange24H
+            it[createdAt] = LocalDateTime.now()
+        }
+    }
+
     suspend fun callApi() =
         try {
             logger.info("Calling API; Fetching Prices")
-            val client =
-                HttpClient(CIO) {
-                }
 
             for (coin in cryptoCoins) {
                 logger.info("Fetching prices for $coin; $today")
@@ -74,32 +86,12 @@ class DailyPrices {
                     val percentChange24H: Double = round(gbpData.percentChange24H * 100) / 100
 
                     transaction {
-                        val existingResponse =
-                            ApiResponses
-                                .select {
-                                    ApiResponses.apiResponseTaskKey eq
-                                        "$coin-$today-$taskName"
-                                }.count()
-
-                        if (existingResponse > 0) {
+                        if (checkExistingApiResponse(coin)) {
                             logger.info("API Response Already Exists; $coin-$today-$taskName")
                             return@transaction
                         } else {
-                            ApiResponses.insert {
-                                it[apiResponseKey] = "$coin-$today"
-                                it[apiResponseTaskKey] = "$coin-$today-$taskName"
-                                it[task] = taskName
-                                it[status] = httpResponse.status.toString()
-                                it[response] = httpResponse.toString()
-                                it[createdAt] = LocalDateTime.now()
-                            }
-                            DailyCoinPrices.insert {
-                                it[apiResponseKey] = "$coin-$today"
-                                it[task] = taskName
-                                it[dailyCoinPrice] = price
-                                it[percentageChange24H] = percentChange24H
-                                it[createdAt] = LocalDateTime.now()
-                            }
+                            insertApiResponse(coin, httpResponse)
+                            insertCoinPrices(coin, price, percentChange24H)
                         }
                     }
                 } else {
