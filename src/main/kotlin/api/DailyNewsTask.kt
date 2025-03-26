@@ -10,7 +10,6 @@ import kotlinx.serialization.json.JsonObject
 import models.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class DailyNewsTask :
     ApiTask(
@@ -43,7 +42,7 @@ class DailyNewsTask :
             it[url] = urlValue
             it[sourceDomain] = sourceDomainValue
             it[overallSentimentLabel] = overallSentimentLabelValue
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 

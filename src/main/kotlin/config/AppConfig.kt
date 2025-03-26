@@ -3,11 +3,13 @@ package config
 import api.CoinPricesTask
 import api.DailyNewsTask
 import api.SharePricesTask
+import api.DiffbotExtractTask
 import azure.DatabaseFactory
 import models.ApiResponses
 import models.DailyCoinPrices
 import models.DailyNewsArticles
 import models.DailySharePrices
+import models.DiffbotExtract
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,6 +31,7 @@ class AppConfig {
             DailyNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
+            DiffbotExtract
         )
 
     fun getSharePriceTickers(): List<String> =
@@ -69,6 +72,12 @@ class AppConfig {
                 SharePricesTask()::taskName,
                 SharePricesTask()::sharePriceTickers,
             ),
+            TaskConfig(
+                DiffbotExtractTask()::callApi,
+                DiffbotExtractTask()::taskSchedule,
+                DiffbotExtractTask()::taskName,
+                DiffbotExtractTask()::newsArticlesToday,
+            )
         )
 
     fun initializeDatabase() {

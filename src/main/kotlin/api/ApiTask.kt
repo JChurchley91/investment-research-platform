@@ -11,7 +11,6 @@ import org.jetbrains.exposed.sql.select
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 open class ApiTask(
     val taskName: String,
@@ -21,6 +20,7 @@ open class ApiTask(
 ) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
     val apiKey = SecretManager().getSecret(apiKeyName)
+    val today: LocalDate = LocalDate.now()
     val yesterday: LocalDate = LocalDate.now().minusDays(1)
     val client =
         HttpClient(CIO) {
@@ -53,7 +53,7 @@ open class ApiTask(
             it[task] = taskName
             it[status] = httpResponse.status.toString()
             it[response] = httpResponse.toString()
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 }

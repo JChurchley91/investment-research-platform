@@ -12,7 +12,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class CoinPricesTask :
     ApiTask(
@@ -47,7 +46,7 @@ class CoinPricesTask :
             it[low] = lowValue
             it[close] = closeValue
             it[volume] = volumeValue
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 
