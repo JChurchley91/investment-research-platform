@@ -1,5 +1,6 @@
 package api
 
+import config.AppConfig
 import azure.SecretManager
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -21,6 +22,8 @@ class DailyNewsTask {
     val taskName: String = "TrendingNews"
     val taskSchedule: String = "0 10 * * *"
     val today: LocalDate = LocalDate.now()
+    val appConfig: AppConfig = AppConfig()
+    val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val defaultJson =
         Json {
             prettyPrint = true

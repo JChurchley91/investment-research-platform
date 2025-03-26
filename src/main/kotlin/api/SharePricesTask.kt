@@ -1,6 +1,6 @@
 package api
 
-import config.sharePriceTickers
+import config.AppConfig
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
@@ -21,6 +21,10 @@ class SharePricesTask :
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {
+    val appConfig: AppConfig = AppConfig()
+    val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
+
+
     @Serializable
     data class TimeSeriesDaily(
         @SerialName("Time Series (Daily)") val timeSeriesDaily: Map<String, JsonObject>,
