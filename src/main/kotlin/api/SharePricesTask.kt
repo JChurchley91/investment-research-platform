@@ -17,13 +17,12 @@ import java.time.LocalDateTime
 class SharePricesTask :
     ApiTask(
         taskName = "sharePrices",
-        taskSchedule = "0 9 * * *",
+        taskSchedule = "* 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {
     val appConfig: AppConfig = AppConfig()
     val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
-
 
     @Serializable
     data class TimeSeriesDaily(
@@ -52,20 +51,20 @@ class SharePricesTask :
     }
 
     suspend fun callApi() {
-        logger.info("Calling API; Fetching Prices")
+        logger.info("Calling API; Fetching Share Prices")
         for (ticker in sharePriceTickers) {
             logger.info("Fetching prices for $ticker; $yesterday")
             val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$ticker&apikey=$apiKey")
             val responseBody: String = httpResponse.body()
             val timeSeriesDaily: TimeSeriesDaily = defaultJson.decodeFromString(responseBody)
-            val timeSeriesDailyToday = timeSeriesDaily.timeSeriesDaily[yesterday.toString()]
+            val timeSeriesDailyYesterday = timeSeriesDaily.timeSeriesDaily[yesterday.toString()]
 
-            if (timeSeriesDailyToday != null) {
-                val openValue: Double = timeSeriesDailyToday["1. open"]!!.jsonPrimitive.double
-                val highValue: Double = timeSeriesDailyToday["2. high"]!!.jsonPrimitive.double
-                val lowValue: Double = timeSeriesDailyToday["3. low"]!!.jsonPrimitive.double
-                val closeValue: Double = timeSeriesDailyToday["4. close"]!!.jsonPrimitive.double
-                val volumeValue: Double = timeSeriesDailyToday["5. volume"]!!.jsonPrimitive.double
+            if (timeSeriesDailyYesterday != null) {
+                val openValue: Double = timeSeriesDailyYesterday["1. open"]!!.jsonPrimitive.double
+                val highValue: Double = timeSeriesDailyYesterday["2. high"]!!.jsonPrimitive.double
+                val lowValue: Double = timeSeriesDailyYesterday["3. low"]!!.jsonPrimitive.double
+                val closeValue: Double = timeSeriesDailyYesterday["4. close"]!!.jsonPrimitive.double
+                val volumeValue: Double = timeSeriesDailyYesterday["5. volume"]!!.jsonPrimitive.double
 
                 transaction {
                     if (checkExistingApiResponse(ticker)) {

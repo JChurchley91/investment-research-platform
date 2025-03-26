@@ -4,13 +4,13 @@ import com.cronutils.model.Cron
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
+import config.TaskConfig
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.reflect.KSuspendFunction0
-import config.TaskConfig
 
 class Scheduler {
     private val timer = Timer()

@@ -18,64 +18,54 @@ import scheduler
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
 class AppConfig {
-
-    fun getSchemas(): List<String> {
-        return listOf(
+    fun getSchemas(): List<String> =
+        listOf(
             "raw",
         )
-    }
 
-    fun getDatabaseTables(): List<IntIdTable> {
-        return listOf(
+    fun getDatabaseTables(): List<IntIdTable> =
+        listOf(
             ApiResponses,
             TrendingNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
         )
-    }
 
-    fun getSharePriceTickers(): List<String> {
-        return listOf(
+    fun getSharePriceTickers(): List<String> =
+        listOf(
             "AAPL",
-            "MSFT",
-            "NVDA",
-            "AMZN",
-            "AVGO",
         )
-    }
 
-    fun getCryptoCoins(): List<String> {
-        return listOf(
+    fun getCryptoCoins(): List<String> =
+        listOf(
             "BTC",
             "ETH",
             "ADA",
             "XRP",
             "SOL",
         )
-    }
 
-    fun getTasksToSchedule(): List<TaskConfig> {
-        return listOf(
+    fun getTasksToSchedule(): List<TaskConfig> =
+        listOf(
             TaskConfig(
                 DailyNewsTask()::callApi,
                 DailyNewsTask()::taskSchedule,
                 DailyNewsTask()::taskName,
-                DailyNewsTask()::sharePriceTickers
+                DailyNewsTask()::sharePriceTickers,
             ),
             TaskConfig(
                 CoinPricesTask()::callApi,
                 CoinPricesTask()::taskSchedule,
                 CoinPricesTask()::taskName,
-                CoinPricesTask()::cryptoCoins
+                CoinPricesTask()::cryptoCoins,
             ),
             TaskConfig(
                 SharePricesTask()::callApi,
                 SharePricesTask()::taskSchedule,
                 SharePricesTask()::taskName,
-                SharePricesTask()::sharePriceTickers
+                SharePricesTask()::sharePriceTickers,
             ),
         )
-    }
 
     fun initializeDatabase() {
         try {

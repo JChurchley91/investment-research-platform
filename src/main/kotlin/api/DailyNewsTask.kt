@@ -1,7 +1,7 @@
 package api
 
-import config.AppConfig
 import azure.SecretManager
+import config.AppConfig
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

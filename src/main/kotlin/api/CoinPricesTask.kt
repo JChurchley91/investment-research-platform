@@ -6,89 +6,79 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonPrimitive
 import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.math.round
 
 class CoinPricesTask :
     ApiTask(
         taskName = "coinPrices",
-        taskSchedule = "0 9 * * *",
-        apiKeyName = "coinmarketcap-api-key",
-        apiUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
+        taskSchedule = "* 10 * * *",
+        apiKeyName = "alpha-vantage-key",
+        apiUrl = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY",
     ) {
-    val today: LocalDate = LocalDate.now()
     val appConfig: AppConfig = AppConfig()
     val cryptoCoins: List<String> = appConfig.getCryptoCoins()
+    val market: String = "USD"
 
     @Serializable
-    data class PriceData(
-        val data: Map<String, CoinData>,
-    )
-
-    @Serializable
-    data class CoinData(
-        val quote: Map<String, GBP>,
-    )
-
-    @Serializable
-    data class GBP(
-        val price: Double,
-        @SerialName("percent_change_1h") val percentChange24H: Double,
+    data class TimeSeriesDaily(
+        @SerialName("Time Series (Digital Currency Daily)") val timeSeriesDaily: Map<String, JsonObject>,
     )
 
     fun insertCoinPrices(
         coin: String,
-        price: Double,
-        percentChange24H: Double,
+        openValue: Double,
+        highValue: Double,
+        lowValue: Double,
+        closeValue: Double,
+        volumeValue: Double,
     ) {
-        logger.info("Inserting coin price data for $coin; $today")
+        logger.info("Inserting coin price data for $coin; $yesterday")
         DailyCoinPrices.insert {
-            it[apiResponseKey] = "$coin-$today"
+            it[apiResponseKey] = "$coin-$yesterday"
             it[task] = taskName
-            it[dailyCoinPrice] = price
-            it[percentageChange24H] = percentChange24H
+            it[open] = openValue
+            it[high] = highValue
+            it[low] = lowValue
+            it[close] = closeValue
+            it[volume] = volumeValue
             it[createdAt] = LocalDateTime.now()
         }
     }
 
-    suspend fun callApi() =
-        try {
-            logger.info("Calling API; Fetching Prices")
+    suspend fun callApi() {
+        logger.info("Calling API; Fetching Prices")
+        for (coin in cryptoCoins) {
+            logger.info("Fetching prices for $coin; $yesterday")
+            val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$coin&market=$market&apikey=$apiKey")
+            val responseBody: String = httpResponse.body()
+            val timeSeriesDaily: TimeSeriesDaily = defaultJson.decodeFromString(responseBody)
+            val timeSeriesDailyYesterday = timeSeriesDaily.timeSeriesDaily[yesterday.toString()]
 
-            for (coin in cryptoCoins) {
-                logger.info("Fetching prices for $coin; $today")
-                val httpResponse: HttpResponse =
-                    client.get(apiUrl) {
-                        parameter("symbol", coin)
-                        parameter("convert", "GBP")
-                        header("X-CMC_PRO_API_KEY", apiKey)
+            if (timeSeriesDailyYesterday != null) {
+                val openValue: Double = timeSeriesDailyYesterday["1. open"]!!.jsonPrimitive.double
+                val highValue: Double = timeSeriesDailyYesterday["2. high"]!!.jsonPrimitive.double
+                val lowValue: Double = timeSeriesDailyYesterday["3. low"]!!.jsonPrimitive.double
+                val closeValue: Double = timeSeriesDailyYesterday["4. close"]!!.jsonPrimitive.double
+                val volumeValue: Double = timeSeriesDailyYesterday["5. volume"]!!.jsonPrimitive.double
+
+                transaction {
+                    if (checkExistingApiResponse(coin)) {
+                        logger.info("Data already exists for $coin on $yesterday")
+                        return@transaction
+                    } else {
+                        insertApiResponse(coin, httpResponse)
+                        insertCoinPrices(coin, openValue, highValue, lowValue, closeValue, volumeValue)
                     }
-                val responseBody: String = httpResponse.body()
-                val priceData: PriceData = defaultJson.decodeFromString(responseBody)
-                val gbpData: GBP? = priceData.data[coin]?.quote?.get("GBP")
-
-                if (gbpData != null) {
-                    val price: Double = round(gbpData.price * 100) / 100
-                    val percentChange24H: Double = round(gbpData.percentChange24H * 100) / 100
-
-                    transaction {
-                        if (checkExistingApiResponse(coin)) {
-                            logger.info("API Response Already Exists; $coin-$today-$taskName")
-                            return@transaction
-                        } else {
-                            insertApiResponse(coin, httpResponse)
-                            insertCoinPrices(coin, price, percentChange24H)
-                        }
-                    }
-                } else {
-                    logger.warn("GBP data not found for $coin")
                 }
+            } else {
+                logger.error("No data found for $coin on $yesterday")
             }
-        } catch (exception: Exception) {
-            logger.error("Error calling API: $exception")
         }
+    }
 }
