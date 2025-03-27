@@ -1,9 +1,10 @@
 package api
 
 import azure.SecretManager
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.*
 import kotlinx.serialization.json.Json
 import models.ApiResponses
 import org.jetbrains.exposed.sql.insert
@@ -22,9 +23,13 @@ open class ApiTask(
     val apiKey = SecretManager().getSecret(apiKeyName)
     val today: LocalDate = LocalDate.now()
     val yesterday: LocalDate = LocalDate.now().minusDays(1)
-    val client =
-        HttpClient(CIO) {
+    val client = HttpClient(CIO) {
+        install(HttpTimeout) {
+            requestTimeoutMillis = 60000
+            connectTimeoutMillis = 60000
+            socketTimeoutMillis = 60000
         }
+    }
     val defaultJson =
         Json {
             prettyPrint = true
@@ -46,10 +51,10 @@ open class ApiTask(
         item: String,
         httpResponse: HttpResponse,
     ) {
-        logger.info("Inserting API Response Data For $item-$yesterday-$taskName")
+        logger.info("Inserting API Response Data For $item-$today-$taskName")
         ApiResponses.insert {
-            it[apiResponseKey] = "$item-$yesterday"
-            it[apiResponseTaskKey] = "$item-$yesterday-$taskName"
+            it[apiResponseKey] = "$item-$today"
+            it[apiResponseTaskKey] = "$item-$today-$taskName"
             it[task] = taskName
             it[status] = httpResponse.status.toString()
             it[response] = httpResponse.toString()

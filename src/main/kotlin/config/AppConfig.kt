@@ -37,19 +37,11 @@ class AppConfig {
     fun getSharePriceTickers(): List<String> =
         listOf(
             "AAPL",
-            "GOOGL",
-            "AMZN",
-            "MSFT",
-            "META",
         )
 
     fun getCryptoCoins(): List<String> =
         listOf(
             "BTC",
-            "ETH",
-            "ADA",
-            "XRP",
-            "SOL",
         )
 
     fun getTasksToSchedule(): List<TaskConfig> =
@@ -76,7 +68,7 @@ class AppConfig {
                 DiffbotExtractTask()::callApi,
                 DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::taskName,
-                DiffbotExtractTask()::newsArticlesToday,
+                DiffbotExtractTask()::listOfSymbols,
             )
         )
 

@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "* * * * *",
+        taskSchedule = "17 10 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
@@ -34,9 +34,9 @@ class DailyNewsTask :
         sourceDomainValue: String,
         overallSentimentLabelValue: String,
     ) {
-        logger.info("Inserting news article data for $tickerValue")
+        logger.info("Inserting News Article Data For $tickerValue")
         DailyNewsArticles.insert {
-            it[apiResponseKey] = "$tickerValue-$yesterday"
+            it[apiResponseKey] = "$tickerValue-$today"
             it[title] = titleValue
             it[task] = taskName
             it[url] = urlValue

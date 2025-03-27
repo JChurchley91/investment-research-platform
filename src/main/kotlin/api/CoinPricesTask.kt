@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class CoinPricesTask :
     ApiTask(
         taskName = "coinPrices",
-        taskSchedule = "* 10 * * *",
+        taskSchedule = "16 10 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY",
     ) {
