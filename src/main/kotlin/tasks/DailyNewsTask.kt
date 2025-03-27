@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import config.AppConfig
 import io.ktor.client.call.*
@@ -72,7 +72,7 @@ class DailyNewsTask :
 
             transaction {
                 if (checkExistingApiResponse(item)) {
-                    logger.info("Data already exists for $item on $yesterday")
+                    logger.info("Data already exists for $item on $today")
                     return@transaction
                 } else {
                     insertApiResponse(item, httpResponse)

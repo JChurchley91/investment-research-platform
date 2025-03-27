@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import azure.SecretManager
 import io.ktor.client.*
@@ -23,13 +23,14 @@ open class ApiTask(
     val apiKey = SecretManager().getSecret(apiKeyName)
     val today: LocalDate = LocalDate.now()
     val yesterday: LocalDate = LocalDate.now().minusDays(1)
-    val client = HttpClient(CIO) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = 60000
-            connectTimeoutMillis = 60000
-            socketTimeoutMillis = 60000
+    val client =
+        HttpClient(CIO) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 60000
+                connectTimeoutMillis = 60000
+                socketTimeoutMillis = 60000
+            }
         }
-    }
     val defaultJson =
         Json {
             prettyPrint = true
@@ -42,7 +43,7 @@ open class ApiTask(
             ApiResponses
                 .select {
                     ApiResponses.apiResponseTaskKey eq
-                        "$item-$yesterday-$taskName"
+                        "$item-$today-$taskName"
                 }.count()
         return existingResponse > 0
     }

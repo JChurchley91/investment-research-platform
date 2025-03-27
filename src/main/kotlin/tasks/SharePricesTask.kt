@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import config.AppConfig
 import io.ktor.client.call.body
@@ -38,7 +38,7 @@ class SharePricesTask :
     ) {
         logger.info("Inserting share price data for $ticker; $yesterday")
         DailySharePrices.insert {
-            it[apiResponseKey] = "$ticker-$yesterday"
+            it[apiResponseKey] = "$ticker-$today"
             it[task] = taskName
             it[open] = openValue
             it[high] = highValue
