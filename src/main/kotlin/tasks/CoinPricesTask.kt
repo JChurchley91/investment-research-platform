@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import config.AppConfig
 import io.ktor.client.call.*
@@ -12,12 +12,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class CoinPricesTask :
     ApiTask(
         taskName = "coinPrices",
-        taskSchedule = "* 10 * * *",
+        taskSchedule = "* 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY",
     ) {
@@ -40,14 +39,14 @@ class CoinPricesTask :
     ) {
         logger.info("Inserting coin price data for $coin; $yesterday")
         DailyCoinPrices.insert {
-            it[apiResponseKey] = "$coin-$yesterday"
+            it[apiResponseKey] = "$coin-$today"
             it[task] = taskName
             it[open] = openValue
             it[high] = highValue
             it[low] = lowValue
             it[close] = closeValue
             it[volume] = volumeValue
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 

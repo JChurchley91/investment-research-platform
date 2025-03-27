@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import config.AppConfig
 import io.ktor.client.call.body
@@ -12,12 +12,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import models.DailySharePrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class SharePricesTask :
     ApiTask(
         taskName = "sharePrices",
-        taskSchedule = "* 9 * * *",
+        taskSchedule = "5 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {
@@ -39,14 +38,14 @@ class SharePricesTask :
     ) {
         logger.info("Inserting share price data for $ticker; $yesterday")
         DailySharePrices.insert {
-            it[apiResponseKey] = "$ticker-$yesterday"
+            it[apiResponseKey] = "$ticker-$today"
             it[task] = taskName
             it[open] = openValue
             it[high] = highValue
             it[low] = lowValue
             it[close] = closeValue
             it[volume] = volumeValue
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 

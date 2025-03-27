@@ -1,4 +1,4 @@
-package api
+package tasks
 
 import config.AppConfig
 import io.ktor.client.call.*
@@ -10,12 +10,11 @@ import kotlinx.serialization.json.JsonObject
 import models.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "* * * * *",
+        taskSchedule = "10 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
@@ -35,15 +34,15 @@ class DailyNewsTask :
         sourceDomainValue: String,
         overallSentimentLabelValue: String,
     ) {
-        logger.info("Inserting news article data for $tickerValue")
+        logger.info("Inserting News Article Data For $tickerValue")
         DailyNewsArticles.insert {
-            it[apiResponseKey] = "$tickerValue-$yesterday"
+            it[apiResponseKey] = "$tickerValue-$today"
             it[title] = titleValue
             it[task] = taskName
             it[url] = urlValue
             it[sourceDomain] = sourceDomainValue
             it[overallSentimentLabel] = overallSentimentLabelValue
-            it[createdAt] = LocalDateTime.now()
+            it[createdAt] = today
         }
     }
 
@@ -73,7 +72,7 @@ class DailyNewsTask :
 
             transaction {
                 if (checkExistingApiResponse(item)) {
-                    logger.info("Data already exists for $item on $yesterday")
+                    logger.info("Data already exists for $item on $today")
                     return@transaction
                 } else {
                     insertApiResponse(item, httpResponse)
