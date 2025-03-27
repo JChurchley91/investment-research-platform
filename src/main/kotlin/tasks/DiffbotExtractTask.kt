@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
-        taskSchedule = "* * * * *",
+        taskSchedule = "15 9 * * *",
         apiKeyName = "diffbot-api-key",
         apiUrl = "https://api.diffbot.com/v3/article?",
     ) {

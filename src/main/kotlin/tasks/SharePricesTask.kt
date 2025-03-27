@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class SharePricesTask :
     ApiTask(
         taskName = "sharePrices",
-        taskSchedule = "18 10 * * *",
+        taskSchedule = "5 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {

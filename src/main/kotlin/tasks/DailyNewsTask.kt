@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "17 10 * * *",
+        taskSchedule = "10 9 * * *",
         apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
