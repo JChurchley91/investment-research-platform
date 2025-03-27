@@ -37,11 +37,19 @@ class AppConfig {
     fun getSharePriceTickers(): List<String> =
         listOf(
             "AAPL",
+            "GOOGL",
+            "MSFT",
+            "AMZN",
+            "META",
         )
 
     fun getCryptoCoins(): List<String> =
         listOf(
             "BTC",
+            "ETH",
+            "ADA",
+            "XRP",
+            "SOL",
         )
 
     fun getTasksToSchedule(): List<TaskConfig> =
