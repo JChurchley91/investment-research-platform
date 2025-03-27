@@ -1,0 +1,4 @@
+package azure
+
+class SecretManagerTest {
+}
