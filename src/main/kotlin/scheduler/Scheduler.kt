@@ -12,11 +12,20 @@ import java.time.ZonedDateTime
 import java.util.*
 import kotlin.reflect.KSuspendFunction0
 
+/**
+ * Scheduler class to manage and execute tasks based on their cron expressions.
+ * It uses a Timer to schedule tasks and a CronParser to parse the cron expressions.
+ */
 class Scheduler {
     private val timer = Timer()
     private val logger = LoggerFactory.getLogger(Scheduler::class.java)
     private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(com.cronutils.model.CronType.UNIX))
 
+    /**
+     * Starts the scheduler by scheduling the provided tasks.
+     * @param tasks List of TaskConfig containing task details.
+     * @return Boolean indicating success or failure of scheduling tasks.
+     */
     fun start(tasks: List<TaskConfig>): Boolean {
         try {
             tasks.forEach { (task, taskName, taskSchedule, taskParameters) ->
@@ -34,6 +43,12 @@ class Scheduler {
         return true
     }
 
+    /**
+     * Schedules a task to be executed at the next execution time based on the cron expression.
+     * @param task The task to be executed.
+     * @param executionTime The ExecutionTime object representing the cron expression.
+     * @param taskName The name of the task.
+     */
     private fun scheduleTask(
         task: KSuspendFunction0<Unit>,
         executionTime: ExecutionTime,

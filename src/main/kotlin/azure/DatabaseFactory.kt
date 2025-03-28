@@ -11,12 +11,24 @@ import org.slf4j.LoggerFactory
 val logger: Logger = LoggerFactory.getLogger("DatabaseFactory")
 val dotenv = dotenv()
 
+/**
+ * A simple test table.
+ * This is created to test the database connection.
+ */
 object TestTable : Table() {
     val id = integer("id").autoIncrement()
     override val primaryKey = PrimaryKey(id)
 }
 
+/**
+ * Connect to a PostgresSQL database using Exposed ORM.
+ * Connects using credentials sourced from .env file.
+ */
 object DatabaseFactory {
+    /**
+     * Initializes the database connection.
+     * @return true if the connection is successful, false otherwise.
+     */
     fun init(): Boolean {
         return try {
             val db =

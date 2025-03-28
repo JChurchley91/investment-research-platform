@@ -14,6 +14,9 @@ import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
+/**
+ * Task to fetch and store daily coin prices from the Alpha Vantage API.
+ */
 class CoinPricesTask :
     ApiTask(
         taskName = "coinPrices",
@@ -25,11 +28,24 @@ class CoinPricesTask :
     val market: String = "USD"
     val apiKeyName = "alpha-vantage-key"
 
+    /**
+     * Data class representing the response from the Alpha Vantage API.
+     */
     @Serializable
     data class TimeSeriesDaily(
         @SerialName("Time Series (Digital Currency Daily)") val timeSeriesDaily: Map<String, JsonObject>,
     )
 
+    /**
+     * Inserts the coin prices API response into the database.
+     *
+     * @param coin The name of the coin.
+     * @param openValue The opening price of the coin.
+     * @param highValue The highest price of the coin.
+     * @param lowValue The lowest price of the coin.
+     * @param closeValue The closing price of the coin.
+     * @param volumeValue The trading volume of the coin.
+     */
     fun insertCoinPrices(
         coin: String,
         openValue: Double,
@@ -51,6 +67,10 @@ class CoinPricesTask :
         }
     }
 
+    /**
+     * Calls the Alpha Vantage API to fetch daily coin prices.
+     * Stores the response in the database.
+     */
     suspend fun callApi() {
         logger.info("Calling API; Fetching Prices")
         val secretManager = SecretManager()

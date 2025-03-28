@@ -3,6 +3,11 @@ package config
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
+/**
+ * Test class for AppConfig.
+ * Test if the AppConfig returns the correct schemas, database tables,
+ * share price tickers, coins, and tasks to schedule.
+ */
 class AppConfigTest :
     FunSpec({
         lateinit var appConfig: AppConfig

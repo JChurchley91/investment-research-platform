@@ -12,6 +12,14 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
+/**
+ * Base class for API tasks.
+ * This class provides common functionality for tasks that interact with APIs.
+ *
+ * @property taskName The name of the task.
+ * @property taskSchedule The schedule for the task.
+ * @property apiUrl The URL of the API to interact with.
+ */
 open class ApiTask(
     val taskName: String,
     val taskSchedule: String,
@@ -35,6 +43,9 @@ open class ApiTask(
             ignoreUnknownKeys = true
         }
 
+    /**
+     * Checks if an API response already exists for the given item.
+     */
     fun checkExistingApiResponse(item: String): Boolean {
         val existingResponse =
             ApiResponses
@@ -45,6 +56,12 @@ open class ApiTask(
         return existingResponse > 0
     }
 
+    /**
+     * Inserts an API response into the database.
+     *
+     * @param item The item for which the API response is being inserted.
+     * @param httpResponse The HTTP response received from the API.
+     */
     fun insertApiResponse(
         item: String,
         httpResponse: HttpResponse,

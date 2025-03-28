@@ -14,6 +14,9 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
+/**
+ * Task to fetch and store extracts from the Diffbot API.
+ */
 class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
@@ -24,11 +27,21 @@ class DiffbotExtractTask :
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
     val apiKeyName: String = "diffbot-api-key"
 
+    /**
+     * Data class representing the response from the Diffbot API.
+     */
     @Serializable
     data class DiffBotExtractObjects(
         @SerialName("objects") val objects: List<JsonObject>,
     )
 
+    /**
+     * Inserts the Diffbot API response into the database.
+     *
+     * @param symbol The symbol of the item.
+     * @param htmlValue The HTML content of the article.
+     * @param textValue The text content of the article.
+     */
     fun insertDiffbotExtract(
         symbol: String,
         htmlValue: String,
@@ -44,6 +57,9 @@ class DiffbotExtractTask :
         }
     }
 
+    /**
+     * Retrieves the news articles for today from the database.
+     */
     fun getNewsArticles(): List<ResultRow> =
         transaction {
             DailyNewsArticles
@@ -52,6 +68,9 @@ class DiffbotExtractTask :
                 }.toList()
         }
 
+    /**
+     * Calls the Diffbot API to fetch extracts for the news articles.
+     */
     suspend fun callApi() {
         val newsArticlesToday: List<ResultRow> = getNewsArticles()
         val secretManager = SecretManager()

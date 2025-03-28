@@ -8,6 +8,10 @@ import models.DailyNewsArticles
 import models.DailySharePrices
 import models.DiffbotExtract
 
+/**
+ * Test class for Models.
+ * Test if the models return the correct table names.
+ */
 class ModelsTest :
     FunSpec({
         lateinit var api: ApiResponses

@@ -7,6 +7,10 @@ val appConfig: AppConfig = AppConfig()
 val logger: Logger = LoggerFactory.getLogger("Main")
 val scheduler = Scheduler()
 
+/**
+ * Main function to execute the application.
+ * Initializes the database and scheduler.
+ */
 fun main() {
     try {
         logger.info("Initializing Database; Creating Schemas & Tables")

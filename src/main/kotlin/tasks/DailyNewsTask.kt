@@ -12,6 +12,9 @@ import models.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
+/**
+ * Task to fetch and store daily news articles from the Alpha Vantage API.
+ */
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
@@ -24,11 +27,22 @@ class DailyNewsTask :
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
     val apiKeyName: String = "alpha-vantage-key"
 
+    /**
+     * Data class representing the response from the Alpha Vantage API.
+     */
     @Serializable
     data class NewsSentimentFeed(
         @SerialName("feed") val newsSentimentFeed: List<JsonObject>,
     )
 
+    /**
+     * Insert the news article API response into the database.
+     * @param tickerValue The ticker value of the news article.
+     * @param titleValue The title of the news article.
+     * @param urlValue The URL of the news article.
+     * @param sourceDomainValue The source domain of the news article.
+     * @param overallSentimentLabelValue The overall sentiment label of the news article.
+     */
     fun insertNewsArticle(
         tickerValue: String,
         titleValue: String,
@@ -48,6 +62,12 @@ class DailyNewsTask :
         }
     }
 
+    /**
+     * Insert either the share price or coin API response into the database.
+     * @param item The item to be inserted.
+     * @param itemType The type of the item (either "sharePrices" or "cryptoCoins").
+     * @param apiKey The API key for authentication.
+     */
     suspend fun processShareTickerValueOrCoin(
         item: String,
         itemType: String,
@@ -91,6 +111,10 @@ class DailyNewsTask :
         }
     }
 
+    /**
+     * Calls the Alpha Vantage API to fetch daily news articles.
+     * Stores the response in the database.
+     */
     suspend fun callApi() {
         logger.info("Calling API; Fetching News Articles")
         val secretManager = SecretManager()

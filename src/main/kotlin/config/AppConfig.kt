@@ -19,21 +19,34 @@ import tasks.SharePricesTask
 
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
+/**
+ * Configuration class for the application.
+ * Contains methods to initialize the database, scheduler, and other configurations.
+ */
 class AppConfig {
     fun getSchemas(): List<String> =
         listOf(
             "raw",
         )
 
-    fun getDatabaseTables(): List<IntIdTable> =
-        listOf(
+    /**
+     * Manually updated list of database tables saved as exposed models.
+     * @return List of database tables to be created on initialization.
+     */
+    fun getDatabaseTables(): List<IntIdTable> {
+        return listOf(
             ApiResponses,
             DailyNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
             DiffbotExtract,
         )
+    }
 
+    /**
+     * Manually updated list of share price tickers.
+     * @return List of share price tickers to be used in the application.
+     */
     fun getSharePriceTickers(): List<String> =
         listOf(
             "AAPL",
@@ -43,6 +56,10 @@ class AppConfig {
             "META",
         )
 
+    /**
+     * Manually updated list of crypto coins.
+     * @return List of crypto coins to be used in the application.
+     */
     fun getCryptoCoins(): List<String> =
         listOf(
             "BTC",
@@ -52,6 +69,10 @@ class AppConfig {
             "SOL",
         )
 
+    /**
+     * Manually updated list of tasks to be scheduled upon application startup.
+     * @return List of tasks to be scheduled.
+     */
     fun getTasksToSchedule(): List<TaskConfig> =
         listOf(
             TaskConfig(
@@ -80,6 +101,10 @@ class AppConfig {
             ),
         )
 
+    /**
+     * Initializes the database connection and creates schemas and tables.
+     * This method is called during application startup.
+     */
     fun initializeDatabase() {
         try {
             if (DatabaseFactory.init()) {
@@ -97,6 +122,10 @@ class AppConfig {
         }
     }
 
+    /**
+     * Initializes the scheduler and schedules tasks.
+     * This method is called during application startup.
+     */
     fun initializeScheduler() {
         try {
             scheduler.start(getTasksToSchedule())
