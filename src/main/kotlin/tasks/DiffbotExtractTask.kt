@@ -1,5 +1,6 @@
 package tasks
 
+import azure.SecretManager
 import config.AppConfig
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -17,11 +18,11 @@ class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
         taskSchedule = "15 9 * * *",
-        apiKeyName = "diffbot-api-key",
         apiUrl = "https://api.diffbot.com/v3/article?",
     ) {
     val appConfig: AppConfig = AppConfig()
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
+    val apiKeyName: String = "diffbot-api-key"
 
     @Serializable
     data class DiffBotExtractObjects(
@@ -53,6 +54,8 @@ class DiffbotExtractTask :
 
     suspend fun callApi() {
         val newsArticlesToday: List<ResultRow> = getNewsArticles()
+        val secretManager = SecretManager()
+        val apiKey: String? = secretManager.getSecret(apiKeyName)
 
         for (symbol in listOfSymbols) {
             val symbolSearchKey = "$symbol-$today"

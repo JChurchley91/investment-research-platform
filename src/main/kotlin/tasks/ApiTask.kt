@@ -1,6 +1,5 @@
 package tasks
 
-import azure.SecretManager
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
@@ -16,11 +15,9 @@ import java.time.LocalDate
 open class ApiTask(
     val taskName: String,
     val taskSchedule: String,
-    val apiKeyName: String,
     val apiUrl: String,
 ) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
-    val apiKey = SecretManager().getSecret(apiKeyName)
     val today: LocalDate = LocalDate.now()
     val yesterday: LocalDate = LocalDate.now().minusDays(1)
     val client =

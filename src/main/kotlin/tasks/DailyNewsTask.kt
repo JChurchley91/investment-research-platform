@@ -1,5 +1,6 @@
 package tasks
 
+import azure.SecretManager
 import config.AppConfig
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -15,12 +16,13 @@ class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
         taskSchedule = "10 9 * * *",
-        apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
     val appConfig: AppConfig = AppConfig()
     val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val cryptoCoins: List<String> = appConfig.getCryptoCoins()
+    val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
+    val apiKeyName: String = "alpha-vantage-key"
 
     @Serializable
     data class NewsSentimentFeed(
@@ -49,6 +51,7 @@ class DailyNewsTask :
     suspend fun processShareTickerValueOrCoin(
         item: String,
         itemType: String,
+        apiKey: String,
     ) {
         logger.info("Fetching News Articles for $item")
         if (itemType != "sharePrices" && itemType != "cryptoCoins") {
@@ -90,11 +93,13 @@ class DailyNewsTask :
 
     suspend fun callApi() {
         logger.info("Calling API; Fetching News Articles")
+        val secretManager = SecretManager()
+        val apiKey: String = secretManager.getSecret(apiKeyName)
         for (item in sharePriceTickers) {
-            processShareTickerValueOrCoin(item, "sharePrices")
+            processShareTickerValueOrCoin(item, "sharePrices", apiKey)
         }
         for (item in cryptoCoins) {
-            processShareTickerValueOrCoin(item, "cryptoCoins")
+            processShareTickerValueOrCoin(item, "cryptoCoins", apiKey)
         }
     }
 }
