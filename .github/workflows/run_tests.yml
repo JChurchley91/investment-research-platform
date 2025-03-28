@@ -1,4 +1,4 @@
-name: run_tests
+name: Run Tests
 
 on:
   pull_request:
@@ -11,15 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout_code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: set_up_jdk
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           java-version: '11'
+          distribution: 'adopt'
 
-      - name: cache_gradle_packages
+      - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
           path: |
@@ -29,11 +30,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: grant_execute_permission
+      - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: build_with_gradle
+      - name: Build with Gradle
         run: ./gradlew build
 
-      - name: run_tests
+      - name: Run tests
         run: ./gradlew test
