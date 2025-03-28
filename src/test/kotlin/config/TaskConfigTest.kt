@@ -4,6 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import tasks.CoinPricesTask
 
+/**
+ * Test class for TaskConfig.
+ * Test if the TaskConfig returns the correct task name, schedule, function, and parameters.
+ */
 class TaskConfigTest :
     FunSpec({
         lateinit var taskConfig: TaskConfig

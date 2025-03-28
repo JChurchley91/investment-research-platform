@@ -3,6 +3,10 @@ package tasks
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
+/**
+ * Test class for ApiTask.
+ * Test if the ApiTask is initialized correctly.
+ */
 class ApiTaskTest :
     FunSpec({
         lateinit var testApiTask: ApiTask
@@ -19,6 +23,7 @@ class ApiTaskTest :
         test("ApiTask should be initialized correctly") {
             testApiTask.taskName shouldBe "Coin Prices"
             testApiTask.taskSchedule shouldBe "* * * * *"
-            testApiTask.apiUrl shouldBe "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd"
+            testApiTask.apiUrl shouldBe "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum," +
+                    "litecoin&vs_currencies=usd"
         }
     })

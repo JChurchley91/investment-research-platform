@@ -6,6 +6,10 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import tasks.CoinPricesTask
 
+/**
+ * Test class for Scheduler.
+ * Test if the Scheduler is initialized correctly.
+ */
 class SchedulerTest :
     FunSpec({
 

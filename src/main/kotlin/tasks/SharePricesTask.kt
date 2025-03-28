@@ -14,6 +14,9 @@ import models.DailySharePrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
+/**
+ * Task to fetch and store daily share prices from the Alpha Vantage API.
+ */
 class SharePricesTask :
     ApiTask(
         taskName = "sharePrices",
@@ -24,11 +27,24 @@ class SharePricesTask :
     val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val apiKeyName: String = "alpha-vantage-key"
 
+    /**
+     * Data class representing the response from the Alpha Vantage API.
+     */
     @Serializable
     data class TimeSeriesDaily(
         @SerialName("Time Series (Daily)") val timeSeriesDaily: Map<String, JsonObject>,
     )
 
+    /**
+     * Inserts the share prices API response into the database.
+     *
+     * @param ticker The ticker symbol of the share.
+     * @param openValue The opening price of the share.
+     * @param highValue The highest price of the share.
+     * @param lowValue The lowest price of the share.
+     * @param closeValue The closing price of the share.
+     * @param volumeValue The trading volume of the share.
+     */
     fun insertSharePrices(
         ticker: String,
         openValue: Double,
@@ -50,6 +66,9 @@ class SharePricesTask :
         }
     }
 
+    /**
+     * Call the Alpha Vantage API to fetch share prices.
+     */
     suspend fun callApi() {
         logger.info("Calling API; Fetching Share Prices")
         val secretManager = SecretManager()

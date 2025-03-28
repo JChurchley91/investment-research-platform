@@ -5,11 +5,13 @@ import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
 import io.github.cdimascio.dotenv.dotenv
 
+/**
+ * Returns a secret from Azure Key Vault.
+ * Uses variables from .env file to connect to Azure Key Vault.
+ */
 class SecretManager {
     private val dotenv = dotenv()
-    private val keyVaultName =
-        dotenv["AZURE_KEY_VAULT_NAME"]
-            ?: throw IllegalArgumentException("AZURE_KEY_VAULT_NAME is not set in .env file")
+    private val keyVaultName = dotenv["AZURE_KEY_VAULT_NAME"]
     private val keyVaultUri = "https://$keyVaultName.vault.azure.net"
     private val client: SecretClient
 
@@ -30,6 +32,12 @@ class SecretManager {
                 ).buildClient()
     }
 
+    /**
+     * Retrieves a secret from Azure Key Vault.
+     *
+     * @param secretName The name of the secret to retrieve.
+     * @return The value of the secret.
+     */
     fun getSecret(secretName: String): String {
         val secret = client.getSecret(secretName)
         return secret.value
