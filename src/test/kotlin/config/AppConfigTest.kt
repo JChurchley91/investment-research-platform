@@ -35,9 +35,9 @@ class AppConfigTest :
         test("AppConfig should return the correct tasks to schedule") {
             val expectedTasks =
                 listOf(
-                    "dailyNewsSearch",
                     "coinPrices",
                     "sharePrices",
+                    "dailyNewsSearch",
                     "diffbotExtract",
                 )
             val returnedTaskNames = appConfig.getTasksToSchedule().map { it.taskName.get() }

@@ -19,8 +19,8 @@ class SchedulerTest :
             taskConfig =
                 TaskConfig(
                     testApiTask::callApi,
-                    testApiTask::taskSchedule,
                     testApiTask::taskName,
+                    testApiTask::taskSchedule,
                     testApiTask::cryptoCoins,
                 )
         }
