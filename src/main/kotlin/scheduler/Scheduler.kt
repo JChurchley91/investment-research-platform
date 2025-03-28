@@ -17,7 +17,7 @@ class Scheduler {
     private val logger = LoggerFactory.getLogger(Scheduler::class.java)
     private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(com.cronutils.model.CronType.UNIX))
 
-    fun start(tasks: List<TaskConfig>) {
+    fun start(tasks: List<TaskConfig>): Boolean {
         try {
             tasks.forEach { (task, cronExpression, taskSchedule, taskParameters) ->
                 logger.info("Scheduling Task ${taskSchedule.get()}; Cron Expression - ${cronExpression.get()}")
@@ -25,10 +25,13 @@ class Scheduler {
                 val cron: Cron = cronParser.parse(cronExpression.get())
                 val executionTime = ExecutionTime.forCron(cron)
                 scheduleTask(task, executionTime, taskSchedule.get())
+                logger.info("Task ${taskSchedule.get()} scheduled successfully")
             }
         } catch (exception: Exception) {
             logger.error("Error scheduling tasks: $exception")
+            return false
         }
+        return true
     }
 
     private fun scheduleTask(

@@ -56,39 +56,40 @@ class AppConfig {
         listOf(
             TaskConfig(
                 DailyNewsTask()::callApi,
-                DailyNewsTask()::taskSchedule,
                 DailyNewsTask()::taskName,
+                DailyNewsTask()::taskSchedule,
                 DailyNewsTask()::sharePriceTickers,
             ),
             TaskConfig(
                 CoinPricesTask()::callApi,
-                CoinPricesTask()::taskSchedule,
                 CoinPricesTask()::taskName,
+                CoinPricesTask()::taskSchedule,
                 CoinPricesTask()::cryptoCoins,
             ),
             TaskConfig(
                 SharePricesTask()::callApi,
-                SharePricesTask()::taskSchedule,
                 SharePricesTask()::taskName,
+                SharePricesTask()::taskSchedule,
                 SharePricesTask()::sharePriceTickers,
             ),
             TaskConfig(
                 DiffbotExtractTask()::callApi,
-                DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::taskName,
+                DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::listOfSymbols,
             ),
         )
 
     fun initializeDatabase() {
         try {
-            DatabaseFactory.init()
-            transaction {
-                for (schema in getSchemas()) {
-                    exec("CREATE SCHEMA IF NOT EXISTS $schema")
-                }
-                for (table in getDatabaseTables()) {
-                    SchemaUtils.create(table)
+            if (DatabaseFactory.init()) {
+                transaction {
+                    for (schema in getSchemas()) {
+                        exec("CREATE SCHEMA IF NOT EXISTS $schema")
+                    }
+                    for (table in getDatabaseTables()) {
+                        SchemaUtils.create(table)
+                    }
                 }
             }
         } catch (exception: Exception) {

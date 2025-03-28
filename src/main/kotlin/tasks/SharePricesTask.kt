@@ -1,5 +1,6 @@
 package tasks
 
+import azure.SecretManager
 import config.AppConfig
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -17,11 +18,11 @@ class SharePricesTask :
     ApiTask(
         taskName = "sharePrices",
         taskSchedule = "5 9 * * *",
-        apiKeyName = "alpha-vantage-key",
         apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
     ) {
     val appConfig: AppConfig = AppConfig()
     val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
+    val apiKeyName: String = "alpha-vantage-key"
 
     @Serializable
     data class TimeSeriesDaily(
@@ -51,6 +52,8 @@ class SharePricesTask :
 
     suspend fun callApi() {
         logger.info("Calling API; Fetching Share Prices")
+        val secretManager = SecretManager()
+        val apiKey: String = secretManager.getSecret(apiKeyName)
         for (ticker in sharePriceTickers) {
             logger.info("Fetching prices for $ticker; $yesterday")
             val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$ticker&apikey=$apiKey")

@@ -1,4 +1,34 @@
 package scheduler
 
-class SchedulerTest {
-}
+import config.TaskConfig
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.runBlocking
+import tasks.CoinPricesTask
+
+class SchedulerTest :
+    FunSpec({
+
+        lateinit var taskConfig: TaskConfig
+        lateinit var scheduler: Scheduler
+        lateinit var testApiTask: CoinPricesTask
+
+        beforeTest {
+            scheduler = Scheduler()
+            testApiTask = CoinPricesTask()
+            taskConfig =
+                TaskConfig(
+                    testApiTask::callApi,
+                    testApiTask::taskSchedule,
+                    testApiTask::taskName,
+                    testApiTask::cryptoCoins,
+                )
+        }
+
+        test("Scheduler should be initialized correctly") {
+            val tasksToSchedule = listOf(taskConfig)
+            runBlocking {
+                scheduler.start(tasksToSchedule) shouldBe true
+            }
+        }
+    })
