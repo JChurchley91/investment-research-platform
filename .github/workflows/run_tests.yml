@@ -1,0 +1,39 @@
+name: run_tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout_code
+        uses: actions/checkout@v3
+
+      - name: set_up_jdk
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+
+      - name: cache_gradle_packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: grant_execute_permission
+        run: chmod +x gradlew
+
+      - name: build_with_gradle
+        run: ./gradlew build
+
+      - name: run_tests
+        run: ./gradlew test
