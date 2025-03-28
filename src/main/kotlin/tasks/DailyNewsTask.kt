@@ -21,6 +21,7 @@ class DailyNewsTask :
     val appConfig: AppConfig = AppConfig()
     val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val cryptoCoins: List<String> = appConfig.getCryptoCoins()
+    val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
     val apiKeyName: String = "alpha-vantage-key"
 
     @Serializable

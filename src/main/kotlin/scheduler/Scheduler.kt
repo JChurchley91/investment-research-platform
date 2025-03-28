@@ -19,13 +19,13 @@ class Scheduler {
 
     fun start(tasks: List<TaskConfig>): Boolean {
         try {
-            tasks.forEach { (task, cronExpression, taskSchedule, taskParameters) ->
-                logger.info("Scheduling Task ${taskSchedule.get()}; Cron Expression - ${cronExpression.get()}")
+            tasks.forEach { (task, taskName, taskSchedule, taskParameters) ->
+                logger.info("Scheduling Task ${taskName.get()}; Cron Expression - ${taskSchedule.get()}")
                 logger.info("Task Parameters: ${taskParameters.get()}")
-                val cron: Cron = cronParser.parse(cronExpression.get())
+                val cron: Cron = cronParser.parse(taskSchedule.get())
                 val executionTime = ExecutionTime.forCron(cron)
-                scheduleTask(task, executionTime, taskSchedule.get())
-                logger.info("Task ${taskSchedule.get()} scheduled successfully")
+                scheduleTask(task, executionTime, taskName.get())
+                logger.info("Task ${taskName.get()} scheduled successfully")
             }
         } catch (exception: Exception) {
             logger.error("Error scheduling tasks: $exception")

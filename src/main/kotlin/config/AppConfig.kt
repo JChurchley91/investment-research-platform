@@ -55,12 +55,6 @@ class AppConfig {
     fun getTasksToSchedule(): List<TaskConfig> =
         listOf(
             TaskConfig(
-                DailyNewsTask()::callApi,
-                DailyNewsTask()::taskName,
-                DailyNewsTask()::taskSchedule,
-                DailyNewsTask()::sharePriceTickers,
-            ),
-            TaskConfig(
                 CoinPricesTask()::callApi,
                 CoinPricesTask()::taskName,
                 CoinPricesTask()::taskSchedule,
@@ -71,6 +65,12 @@ class AppConfig {
                 SharePricesTask()::taskName,
                 SharePricesTask()::taskSchedule,
                 SharePricesTask()::sharePriceTickers,
+            ),
+            TaskConfig(
+                DailyNewsTask()::callApi,
+                DailyNewsTask()::taskName,
+                DailyNewsTask()::taskSchedule,
+                DailyNewsTask()::listOfSymbols,
             ),
             TaskConfig(
                 DiffbotExtractTask()::callApi,
