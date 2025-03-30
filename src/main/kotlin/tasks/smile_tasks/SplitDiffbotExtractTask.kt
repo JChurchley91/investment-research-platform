@@ -2,15 +2,15 @@ package tasks.smile_tasks
 
 import appConfig
 import kotlinx.coroutines.coroutineScope
-import models.api_transforms.SplitDiffbotExtract
 import models.api_extracts.DiffbotExtract
+import models.api_transforms.DiffbotExtractSplits
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class SplitDiffbotExtractTask :
     SmileTask(
-        taskName = "diffbotExtractKeyword",
+        taskName = "splitDiffbotExtract",
         taskSchedule = "* 12 * * *",
     ) {
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
@@ -38,16 +38,16 @@ class SplitDiffbotExtractTask :
                         newsArticle[DiffbotExtract.summary].toString()
 
                     transaction {
-                        val existingCleansedArticle: Long =
-                            SplitDiffbotExtract
+                        val existingSplitArticle: Long =
+                            DiffbotExtractSplits
                                 .select {
-                                    SplitDiffbotExtract.apiResponseKey eq
+                                    DiffbotExtractSplits.apiResponseKey eq
                                         "$symbol-$today"
                                 }.count()
-                        if (existingCleansedArticle > 0) {
+                        if (existingSplitArticle > 0) {
                             logger.info("Data Already Exists For $symbol on $today")
                         } else {
-                            //TODO
+                            // TODO
                         }
                     }
                 } else {

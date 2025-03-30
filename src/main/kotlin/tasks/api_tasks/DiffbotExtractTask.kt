@@ -84,12 +84,16 @@ class DiffbotExtractTask :
             if (newsArticle != null) {
                 logger.info("Fetching Diffbot Extract Data for $symbol; $today")
                 val newsArticleUrl: String = newsArticle[DailyNewsArticles.url].replace("\"", "")
-                val httpResponse: HttpResponse = client.get("$apiUrl&token=$apiKey&naturalLanguage=summary" +
-                        "&summaryNumSentences=5&url=$newsArticleUrl")
+                val httpResponse: HttpResponse =
+                    client.get(
+                        "$apiUrl&token=$apiKey&naturalLanguage=summary" +
+                            "&summaryNumSentences=5&url=$newsArticleUrl",
+                    )
                 val responseBody: String = httpResponse.body()
                 val diffbotExtractObject: DiffBotExtractObjects = defaultJson.decodeFromString(responseBody)
                 val topDiffbotExtractObject = diffbotExtractObject.objects[0]
-                val diffbotExtractNaturalLanguage: JsonObject = topDiffbotExtractObject["naturalLanguage"]
+                val diffbotExtractNaturalLanguage: JsonObject =
+                    topDiffbotExtractObject["naturalLanguage"]
                         as JsonObject
 
                 transaction {
@@ -101,7 +105,7 @@ class DiffbotExtractTask :
                         insertDiffbotExtract(
                             symbol,
                             topDiffbotExtractObject["html"].toString(),
-                            diffbotExtractNaturalLanguage["summary"].toString(),
+                            diffbotExtractNaturalLanguage["summary"].toString().replace("\"", ""),
                         )
                     }
                 }
