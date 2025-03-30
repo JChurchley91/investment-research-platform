@@ -2,8 +2,10 @@ package tasks.smile_tasks
 
 import appConfig
 import kotlinx.coroutines.coroutineScope
+import models.api_cleanses.CleansedDiffbotExtract
 import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -31,10 +33,32 @@ class CleanDiffbotExtractTask :
                     diffbotExtractData.find { article ->
                         article[DiffbotExtract.apiResponseKey] == symbolSearchKey
                     }
-                val newsArticleText: String =
-                    newsArticle?.get(DiffbotExtract.text).toString()
-                val newsArticleCleaned = cleanTextForNlp(newsArticleText)
-                println(newsArticleCleaned)
+
+                if (newsArticle != null) {
+                    val newsArticleText: String =
+                        newsArticle[DiffbotExtract.text].toString()
+                    val newsArticleCleaned = cleanTextForNlp(newsArticleText)
+                    logger.info("Cleaned Text For $symbol Article On $today")
+                    transaction {
+                        val existingCleansedArticle: Long =
+                            CleansedDiffbotExtract
+                                .select {
+                                    CleansedDiffbotExtract.apiResponseKey eq
+                                        "$symbol-$today"
+                                }.count()
+                        if (existingCleansedArticle > 0) {
+                            logger.info("Data Already Exists For $symbol on $today")
+                        } else {
+                            CleansedDiffbotExtract.insert {
+                                it[apiResponseKey] = symbolSearchKey
+                                it[cleansedExtractedText] = newsArticleCleaned
+                                it[createdAt] = today
+                            }
+                        }
+                    }
+                } else {
+                    logger.info("No Diffbot Extract Exists for $symbol on $today")
+                }
             }
         }
     }
