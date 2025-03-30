@@ -1,11 +1,12 @@
 package config
 
 import azure.DatabaseFactory
-import models.ApiResponses
-import models.DailyCoinPrices
-import models.DailyNewsArticles
-import models.DailySharePrices
-import models.DiffbotExtract
+import models.api_extracts.ApiResponses
+import models.api_extracts.DailyCoinPrices
+import models.api_extracts.DailyNewsArticles
+import models.api_extracts.DailySharePrices
+import models.api_extracts.DiffbotExtract
+import models.api_cleanses.CleansedDiffbotExtract
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -41,6 +42,7 @@ class AppConfig {
             DailyCoinPrices,
             DailySharePrices,
             DiffbotExtract,
+            CleansedDiffbotExtract
         )
 
     /**

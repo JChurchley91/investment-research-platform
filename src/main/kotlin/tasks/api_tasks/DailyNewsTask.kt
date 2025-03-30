@@ -8,7 +8,7 @@ import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-import models.DailyNewsArticles
+import models.api_extracts.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 

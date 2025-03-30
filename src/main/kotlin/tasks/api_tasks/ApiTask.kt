@@ -5,7 +5,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.Json
-import models.ApiResponses
+import models.api_extracts.ApiResponses
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.slf4j.Logger

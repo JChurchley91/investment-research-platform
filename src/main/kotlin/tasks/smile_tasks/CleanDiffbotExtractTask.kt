@@ -2,7 +2,7 @@ package tasks.smile_tasks
 
 import appConfig
 import kotlinx.coroutines.coroutineScope
-import models.DiffbotExtract
+import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

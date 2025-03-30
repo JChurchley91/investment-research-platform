@@ -8,8 +8,8 @@ import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-import models.DailyNewsArticles
-import models.DiffbotExtract
+import models.api_extracts.DailyNewsArticles
+import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

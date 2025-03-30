@@ -1,13 +1,13 @@
-package models
+package models.api_extracts
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.javatime.date
 
 /**
- * Represents the daily share prices table in the database.
- * This table stores the daily share prices fetched from various sources.
+ * Represents the daily coin prices table in the database.
+ * This table stores the daily prices of various coins.
  */
-object DailySharePrices : IntIdTable("raw.daily_share_prices") {
+object DailyCoinPrices : IntIdTable("raw.daily_coin_prices") {
     val apiResponseKey = varchar("api_response_key", 255)
     val task = varchar("task_name", 255)
     val open = double("open")
