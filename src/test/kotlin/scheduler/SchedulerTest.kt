@@ -4,7 +4,7 @@ import config.TaskConfig
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import tasks.CoinPricesTask
+import tasks.api_tasks.CoinPricesTask
 
 /**
  * Test class for Scheduler.

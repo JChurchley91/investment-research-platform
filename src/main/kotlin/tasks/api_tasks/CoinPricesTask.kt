@@ -1,61 +1,62 @@
-package tasks
+package tasks.api_tasks
 
 import azure.SecretManager
 import config.AppConfig
-import io.ktor.client.call.body
+import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonPrimitive
-import models.DailySharePrices
+import models.DailyCoinPrices
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
- * Task to fetch and store daily share prices from the Alpha Vantage API.
+ * Task to fetch and store daily coin prices from the Alpha Vantage API.
  */
-class SharePricesTask :
+class CoinPricesTask :
     ApiTask(
-        taskName = "sharePrices",
-        taskSchedule = "5 9 * * *",
-        apiUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY",
+        taskName = "coinPrices",
+        taskSchedule = "* 9 * * *",
+        apiUrl = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY",
     ) {
     val appConfig: AppConfig = AppConfig()
-    val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
-    val apiKeyName: String = "alpha-vantage-key"
+    val cryptoCoins: List<String> = appConfig.getCryptoCoins()
+    val market: String = "USD"
+    val apiKeyName = "alpha-vantage-key"
 
     /**
      * Data class representing the response from the Alpha Vantage API.
      */
     @Serializable
     data class TimeSeriesDaily(
-        @SerialName("Time Series (Daily)") val timeSeriesDaily: Map<String, JsonObject>,
+        @SerialName("Time Series (Digital Currency Daily)") val timeSeriesDaily: Map<String, JsonObject>,
     )
 
     /**
-     * Inserts the share prices API response into the database.
+     * Inserts the coin prices API response into the database.
      *
-     * @param ticker The ticker symbol of the share.
-     * @param openValue The opening price of the share.
-     * @param highValue The highest price of the share.
-     * @param lowValue The lowest price of the share.
-     * @param closeValue The closing price of the share.
-     * @param volumeValue The trading volume of the share.
+     * @param coin The name of the coin.
+     * @param openValue The opening price of the coin.
+     * @param highValue The highest price of the coin.
+     * @param lowValue The lowest price of the coin.
+     * @param closeValue The closing price of the coin.
+     * @param volumeValue The trading volume of the coin.
      */
-    fun insertSharePrices(
-        ticker: String,
+    fun insertCoinPrices(
+        coin: String,
         openValue: Double,
         highValue: Double,
         lowValue: Double,
         closeValue: Double,
         volumeValue: Double,
     ) {
-        logger.info("Inserting share price data for $ticker; $yesterday")
-        DailySharePrices.insert {
-            it[apiResponseKey] = "$ticker-$today"
+        logger.info("Inserting coin price data for $coin; $yesterday")
+        DailyCoinPrices.insert {
+            it[apiResponseKey] = "$coin-$today"
             it[task] = taskName
             it[open] = openValue
             it[high] = highValue
@@ -67,15 +68,16 @@ class SharePricesTask :
     }
 
     /**
-     * Call the Alpha Vantage API to fetch share prices.
+     * Calls the Alpha Vantage API to fetch daily coin prices.
+     * Stores the response in the database.
      */
     suspend fun callApi() {
-        logger.info("Calling API; Fetching Share Prices")
+        logger.info("Calling API; Fetching Prices")
         val secretManager = SecretManager()
-        val apiKey: String = secretManager.getSecret(apiKeyName)
-        for (ticker in sharePriceTickers) {
-            logger.info("Fetching prices for $ticker; $yesterday")
-            val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$ticker&apikey=$apiKey")
+        val apiKey: String? = secretManager.getSecret(apiKeyName)
+        for (coin in cryptoCoins) {
+            logger.info("Fetching prices for $coin; $yesterday")
+            val httpResponse: HttpResponse = client.get("$apiUrl&symbol=$coin&market=$market&apikey=$apiKey")
             val responseBody: String = httpResponse.body()
             val timeSeriesDaily: TimeSeriesDaily = defaultJson.decodeFromString(responseBody)
             val timeSeriesDailyYesterday = timeSeriesDaily.timeSeriesDaily[yesterday.toString()]
@@ -88,16 +90,16 @@ class SharePricesTask :
                 val volumeValue: Double = timeSeriesDailyYesterday["5. volume"]!!.jsonPrimitive.double
 
                 transaction {
-                    if (checkExistingApiResponse(ticker)) {
-                        logger.info("Data already exists for $ticker on $yesterday")
+                    if (checkExistingApiResponse(coin)) {
+                        logger.info("Data already exists for $coin on $yesterday")
                         return@transaction
                     } else {
-                        insertApiResponse(ticker, httpResponse)
-                        insertSharePrices(ticker, openValue, highValue, lowValue, closeValue, volumeValue)
+                        insertApiResponse(coin, httpResponse)
+                        insertCoinPrices(coin, openValue, highValue, lowValue, closeValue, volumeValue)
                     }
                 }
             } else {
-                logger.error("No data found for $ticker on $yesterday")
+                logger.error("No data found for $coin on $yesterday")
             }
         }
     }

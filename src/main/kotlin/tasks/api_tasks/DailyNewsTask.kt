@@ -1,4 +1,4 @@
-package tasks
+package tasks.api_tasks
 
 import azure.SecretManager
 import config.AppConfig

@@ -2,7 +2,7 @@ package config
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import tasks.CoinPricesTask
+import tasks.api_tasks.CoinPricesTask
 
 /**
  * Test class for TaskConfig.

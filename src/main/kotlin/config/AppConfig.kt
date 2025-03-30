@@ -12,10 +12,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import scheduler
-import tasks.CoinPricesTask
-import tasks.DailyNewsTask
-import tasks.DiffbotExtractTask
-import tasks.SharePricesTask
+import tasks.api_tasks.CoinPricesTask
+import tasks.api_tasks.DailyNewsTask
+import tasks.api_tasks.DiffbotExtractTask
+import tasks.api_tasks.SharePricesTask
+import tasks.smile_tasks.CleanDiffbotExtractTask
 
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
@@ -33,15 +34,14 @@ class AppConfig {
      * Manually updated list of database tables saved as exposed models.
      * @return List of database tables to be created on initialization.
      */
-    fun getDatabaseTables(): List<IntIdTable> {
-        return listOf(
+    fun getDatabaseTables(): List<IntIdTable> =
+        listOf(
             ApiResponses,
             DailyNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
             DiffbotExtract,
         )
-    }
 
     /**
      * Manually updated list of share price tickers.
@@ -98,6 +98,12 @@ class AppConfig {
                 DiffbotExtractTask()::taskName,
                 DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::listOfSymbols,
+            ),
+            TaskConfig(
+                CleanDiffbotExtractTask()::cleanDiffbotExtracts,
+                CleanDiffbotExtractTask()::taskName,
+                CleanDiffbotExtractTask()::taskSchedule,
+                CleanDiffbotExtractTask()::listOfSymbols,
             ),
         )
 
