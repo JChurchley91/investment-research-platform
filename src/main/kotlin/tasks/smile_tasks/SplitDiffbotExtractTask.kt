@@ -2,17 +2,16 @@ package tasks.smile_tasks
 
 import appConfig
 import kotlinx.coroutines.coroutineScope
-import models.api_cleanses.CleansedDiffbotExtract
+import models.api_transforms.SplitDiffbotExtract
 import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class CleanDiffbotExtractTask :
+class SplitDiffbotExtractTask :
     SmileTask(
         taskName = "diffbotExtractKeyword",
-        taskSchedule = "* * * * *",
+        taskSchedule = "* 12 * * *",
     ) {
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
 
@@ -24,7 +23,7 @@ class CleanDiffbotExtractTask :
                 }.toList()
         }
 
-    suspend fun cleanDiffbotExtracts() {
+    suspend fun splitDiffbotExtract() {
         coroutineScope {
             for (symbol in listOfSymbols) {
                 val diffbotExtractData: List<ResultRow> = retrieveDiffbotExtracts()
@@ -36,24 +35,19 @@ class CleanDiffbotExtractTask :
 
                 if (newsArticle != null) {
                     val newsArticleText: String =
-                        newsArticle[DiffbotExtract.text].toString()
-                    val newsArticleCleaned = cleanTextForNlp(newsArticleText)
-                    logger.info("Cleaned Text For $symbol Article On $today")
+                        newsArticle[DiffbotExtract.summary].toString()
+
                     transaction {
                         val existingCleansedArticle: Long =
-                            CleansedDiffbotExtract
+                            SplitDiffbotExtract
                                 .select {
-                                    CleansedDiffbotExtract.apiResponseKey eq
+                                    SplitDiffbotExtract.apiResponseKey eq
                                         "$symbol-$today"
                                 }.count()
                         if (existingCleansedArticle > 0) {
                             logger.info("Data Already Exists For $symbol on $today")
                         } else {
-                            CleansedDiffbotExtract.insert {
-                                it[apiResponseKey] = symbolSearchKey
-                                it[cleansedExtractedText] = newsArticleCleaned
-                                it[createdAt] = today
-                            }
+                            //TODO
                         }
                     }
                 } else {

@@ -40,19 +40,18 @@ class DiffbotExtractTask :
      *
      * @param symbol The symbol of the item.
      * @param htmlValue The HTML content of the article.
-     * @param textValue The text content of the article.
      */
     fun insertDiffbotExtract(
         symbol: String,
         htmlValue: String,
-        textValue: String,
+        summaryValue: String,
     ) {
         logger.info("Inserting Diffbot Extract Data for $symbol; $today")
         DiffbotExtract.insert {
             it[apiResponseKey] = "$symbol-$today"
             it[task] = taskName
+            it[summary] = summaryValue
             it[html] = htmlValue
-            it[text] = textValue
             it[createdAt] = today
         }
     }
@@ -85,10 +84,13 @@ class DiffbotExtractTask :
             if (newsArticle != null) {
                 logger.info("Fetching Diffbot Extract Data for $symbol; $today")
                 val newsArticleUrl: String = newsArticle[DailyNewsArticles.url].replace("\"", "")
-                val httpResponse: HttpResponse = client.get("$apiUrl&token=$apiKey&url=$newsArticleUrl")
+                val httpResponse: HttpResponse = client.get("$apiUrl&token=$apiKey&naturalLanguage=summary" +
+                        "&summaryNumSentences=5&url=$newsArticleUrl")
                 val responseBody: String = httpResponse.body()
                 val diffbotExtractObject: DiffBotExtractObjects = defaultJson.decodeFromString(responseBody)
                 val topDiffbotExtractObject = diffbotExtractObject.objects[0]
+                val diffbotExtractNaturalLanguage: JsonObject = topDiffbotExtractObject["naturalLanguage"]
+                        as JsonObject
 
                 transaction {
                     if (checkExistingApiResponse(symbol)) {
@@ -99,7 +101,7 @@ class DiffbotExtractTask :
                         insertDiffbotExtract(
                             symbol,
                             topDiffbotExtractObject["html"].toString(),
-                            topDiffbotExtractObject["text"].toString(),
+                            diffbotExtractNaturalLanguage["summary"].toString(),
                         )
                     }
                 }
