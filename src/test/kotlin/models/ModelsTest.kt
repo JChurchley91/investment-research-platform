@@ -2,11 +2,11 @@ package models
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import models.ApiResponses
-import models.DailyCoinPrices
-import models.DailyNewsArticles
-import models.DailySharePrices
-import models.DiffbotExtract
+import models.api_extracts.ApiResponses
+import models.api_extracts.DailyCoinPrices
+import models.api_extracts.DailyNewsArticles
+import models.api_extracts.DailySharePrices
+import models.api_extracts.DiffbotExtract
 
 /**
  * Test class for Models.

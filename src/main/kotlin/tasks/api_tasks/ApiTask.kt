@@ -1,11 +1,11 @@
-package tasks
+package tasks.api_tasks
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.Json
-import models.ApiResponses
+import models.api_extracts.ApiResponses
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.slf4j.Logger
@@ -27,7 +27,7 @@ open class ApiTask(
 ) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
     val today: LocalDate = LocalDate.now()
-    val yesterday: LocalDate = LocalDate.now().minusDays(1)
+    val yesterday: LocalDate = today.minusDays(1)
     val client =
         HttpClient(CIO) {
             install(HttpTimeout) {

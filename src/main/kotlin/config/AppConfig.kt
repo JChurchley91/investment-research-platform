@@ -1,21 +1,23 @@
 package config
 
 import azure.DatabaseFactory
-import models.ApiResponses
-import models.DailyCoinPrices
-import models.DailyNewsArticles
-import models.DailySharePrices
-import models.DiffbotExtract
+import models.api_extracts.ApiResponses
+import models.api_extracts.DailyCoinPrices
+import models.api_extracts.DailyNewsArticles
+import models.api_extracts.DailySharePrices
+import models.api_extracts.DiffbotExtract
+import models.api_transforms.DiffbotExtractSplits
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import scheduler
-import tasks.CoinPricesTask
-import tasks.DailyNewsTask
-import tasks.DiffbotExtractTask
-import tasks.SharePricesTask
+import tasks.api_tasks.CoinPricesTask
+import tasks.api_tasks.DailyNewsTask
+import tasks.api_tasks.DiffbotExtractTask
+import tasks.api_tasks.SharePricesTask
+import tasks.smile_tasks.SplitDiffbotExtractTask
 
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
@@ -27,21 +29,22 @@ class AppConfig {
     fun getSchemas(): List<String> =
         listOf(
             "raw",
+            "transformed",
         )
 
     /**
      * Manually updated list of database tables saved as exposed models.
      * @return List of database tables to be created on initialization.
      */
-    fun getDatabaseTables(): List<IntIdTable> {
-        return listOf(
+    fun getDatabaseTables(): List<IntIdTable> =
+        listOf(
             ApiResponses,
             DailyNewsArticles,
             DailyCoinPrices,
             DailySharePrices,
             DiffbotExtract,
+            DiffbotExtractSplits,
         )
-    }
 
     /**
      * Manually updated list of share price tickers.
@@ -98,6 +101,12 @@ class AppConfig {
                 DiffbotExtractTask()::taskName,
                 DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::listOfSymbols,
+            ),
+            TaskConfig(
+                SplitDiffbotExtractTask()::splitDiffbotExtract,
+                SplitDiffbotExtractTask()::taskName,
+                SplitDiffbotExtractTask()::taskSchedule,
+                SplitDiffbotExtractTask()::listOfSymbols,
             ),
         )
 

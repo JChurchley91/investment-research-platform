@@ -34,7 +34,7 @@ class Scheduler {
                 val cron: Cron = cronParser.parse(taskSchedule.get())
                 val executionTime = ExecutionTime.forCron(cron)
                 scheduleTask(task, executionTime, taskName.get())
-                logger.info("Task ${taskName.get()} scheduled successfully")
+                logger.info("Task ${taskName.get()} Scheduled Successfully")
             }
         } catch (exception: Exception) {
             logger.error("Error scheduling tasks: $exception")
@@ -64,9 +64,9 @@ class Scheduler {
                             launch {
                                 try {
                                     task()
-                                    logger.info("Task $taskName executed successfully")
+                                    logger.info("Task $taskName Executed Succesfully")
                                 } catch (exception: Exception) {
-                                    logger.error("Error executing task $taskName: $exception")
+                                    logger.error("Error Executing Task $taskName: $exception")
                                 }
                             }
                         }
