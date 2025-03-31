@@ -16,7 +16,7 @@ import smile.nlp.sentences
 class SplitDiffbotExtractTask :
     SmileTask(
         taskName = "splitDiffbotExtract",
-        taskSchedule = "* * * * *",
+        taskSchedule = "20 9 * * *",
     ) {
     val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
 

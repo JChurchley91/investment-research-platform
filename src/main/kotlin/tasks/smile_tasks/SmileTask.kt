@@ -17,5 +17,5 @@ open class SmileTask(
     val taskSchedule: String,
 ) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
-    val today: LocalDate = LocalDate.now().minusDays(1)
+    val today: LocalDate = LocalDate.now()
 }

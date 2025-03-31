@@ -27,7 +27,7 @@ open class ApiTask(
 ) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
     val today: LocalDate = LocalDate.now()
-    val yesterday: LocalDate = LocalDate.now().minusDays(1)
+    val yesterday: LocalDate = today.minusDays(1)
     val client =
         HttpClient(CIO) {
             install(HttpTimeout) {
