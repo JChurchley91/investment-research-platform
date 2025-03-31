@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.javatime.date
  * This table stores cleansed versions of diffbot text extracts.
  */
 object DiffbotExtractSplits : IntIdTable("transformed.diffbot_extract_splits") {
-    val diffbotExtractId = integer("diffbot_extract_sentence_id")
+    val diffbotExtractId = varchar("diffbot_extract_sentence_id", 255)
     val apiResponseKey = varchar("api_response_key", 255)
     val diffbotExtractSentence = text("diffbot_extract_sentence_text")
     val createdAt = date("created_at")
