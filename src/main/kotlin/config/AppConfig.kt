@@ -53,7 +53,7 @@ class AppConfig {
     fun getSharePriceTickers(): List<String> =
         listOf(
             "AAPL",
-            "GOOGL",
+            "GOOG",
             "MSFT",
             "AMZN",
             "META",
