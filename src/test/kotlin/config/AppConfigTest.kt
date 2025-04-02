@@ -29,10 +29,6 @@ class AppConfigTest :
                 )
             appConfig.getDatabaseTables().map { it.tableName } shouldBe expectedTables
         }
-        test("AppConfig should return the correct share price tickers") {
-            val expectedTickers = listOf("AAPL", "GOOGL", "MSFT", "AMZN", "META")
-            appConfig.getSharePriceTickers() shouldBe expectedTickers
-        }
         test("AppConfig should return the correct crypto coins") {
             val expectedCoins = listOf("BTC", "ETH", "ADA", "XRP", "SOL")
             appConfig.getCryptoCoins() shouldBe expectedCoins

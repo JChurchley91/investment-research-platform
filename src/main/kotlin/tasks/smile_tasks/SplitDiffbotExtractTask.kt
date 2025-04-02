@@ -16,9 +16,9 @@ import smile.nlp.sentences
 class SplitDiffbotExtractTask :
     SmileTask(
         taskName = "splitDiffbotExtract",
-        taskSchedule = "20 9 * * *",
+        taskSchedule = "15 9 * * *",
     ) {
-    val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
+    val cryptoCoins = appConfig.getCryptoCoins()
 
     /**
      * Retrieve existing diffbot extracts for today's date.
@@ -37,7 +37,7 @@ class SplitDiffbotExtractTask :
      */
     suspend fun splitDiffbotExtract() {
         coroutineScope {
-            for (symbol in listOfSymbols) {
+            for (symbol in cryptoCoins) {
                 val diffbotExtractData: List<ResultRow> = retrieveDiffbotExtracts()
                 val symbolSearchKey = "$symbol-$today"
 

@@ -12,6 +12,5 @@ object ApiResponses : IntIdTable("raw.api_responses") {
     val apiResponseTaskKey = varchar("api_response_task_key", 255)
     val task = varchar("task_name", 255)
     val status = varchar("status", 255)
-    val response = varchar("response", 255)
     val createdAt = date("created_at")
 }

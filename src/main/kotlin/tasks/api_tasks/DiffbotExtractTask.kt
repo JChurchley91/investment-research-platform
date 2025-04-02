@@ -20,11 +20,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
-        taskSchedule = "15 9 * * *",
+        taskSchedule = "10 9 * * *",
         apiUrl = "https://api.diffbot.com/v3/article?",
     ) {
     val appConfig: AppConfig = AppConfig()
-    val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
+    val cryptoCoins = appConfig.getCryptoCoins()
     val apiKeyName: String = "diffbot-api-key"
 
     /**
@@ -39,19 +39,18 @@ class DiffbotExtractTask :
      * Inserts the Diffbot API response into the database.
      *
      * @param symbol The symbol of the item.
-     * @param htmlValue The HTML content of the article.
      */
     fun insertDiffbotExtract(
         symbol: String,
-        htmlValue: String,
         summaryValue: String,
+        apiResponseArticleKeyValue: String,
     ) {
         logger.info("Inserting Diffbot Extract Data for $symbol; $today")
         DiffbotExtract.insert {
             it[apiResponseKey] = "$symbol-$today"
+            it[apiResponseArticleKey] = apiResponseArticleKeyValue
             it[task] = taskName
             it[summary] = summaryValue
-            it[html] = htmlValue
             it[createdAt] = today
         }
     }
@@ -75,42 +74,38 @@ class DiffbotExtractTask :
         val secretManager = SecretManager()
         val apiKey: String? = secretManager.getSecret(apiKeyName)
 
-        for (symbol in listOfSymbols) {
-            val symbolSearchKey = "$symbol-$today"
-            val newsArticle: ResultRow? =
-                newsArticlesToday.find { article ->
+        for (coin in cryptoCoins) {
+            val symbolSearchKey = "$coin-$today"
+            val relevantNewsArticles =
+                newsArticlesToday.filter { article ->
                     article[DailyNewsArticles.apiResponseKey] == symbolSearchKey
                 }
-            if (newsArticle != null) {
-                logger.info("Fetching Diffbot Extract Data for $symbol; $today")
-                val newsArticleUrl: String = newsArticle[DailyNewsArticles.url].replace("\"", "")
-                val httpResponse: HttpResponse =
-                    client.get(
-                        "$apiUrl&token=$apiKey&naturalLanguage=summary" +
-                            "&summaryNumSentences=5&url=$newsArticleUrl",
-                    )
-                val responseBody: String = httpResponse.body()
-                val diffbotExtractObject: DiffBotExtractObjects = defaultJson.decodeFromString(responseBody)
-                val topDiffbotExtractObject = diffbotExtractObject.objects[0]
-                val diffbotExtractNaturalLanguage: JsonObject =
-                    topDiffbotExtractObject["naturalLanguage"]
-                        as JsonObject
 
-                transaction {
-                    if (checkExistingApiResponse(symbol)) {
-                        logger.info("Data already exists for $symbol on $today")
-                        return@transaction
-                    } else {
-                        insertApiResponse(symbol, httpResponse)
+            if (newsArticlesToday.isNotEmpty()) {
+                logger.info("Fetching Diffbot Extract Data for $coin; $today")
+                relevantNewsArticles.forEach { article ->
+                    val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")
+                    val httpResponse: HttpResponse =
+                        client.get(
+                            "$apiUrl&token=$apiKey&naturalLanguage=summary" +
+                                "&summaryNumSentences=5&url=$newsArticleUrl",
+                        )
+                    val responseBody: String = httpResponse.body()
+                    val diffbotExtractObject: DiffBotExtractObjects = defaultJson.decodeFromString(responseBody)
+                    val topDiffbotExtractObject = diffbotExtractObject.objects[0]
+                    val diffbotExtractNaturalLanguage: JsonObject =
+                        topDiffbotExtractObject["naturalLanguage"]
+                            as JsonObject
+
+                    transaction {
+                        insertApiResponse(coin, httpResponse)
                         insertDiffbotExtract(
-                            symbol,
-                            topDiffbotExtractObject["html"].toString(),
+                            coin,
                             diffbotExtractNaturalLanguage["summary"].toString().replace("\"", ""),
+                            article[DailyNewsArticles.apiResponseArticleKey].toString(),
                         )
                     }
                 }
-            } else {
-                logger.info("No News Article Exists for $symbol; $today")
             }
         }
     }

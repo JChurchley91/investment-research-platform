@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import models.api_extracts.ApiResponses
 import models.api_extracts.DailyCoinPrices
 import models.api_extracts.DailyNewsArticles
-import models.api_extracts.DailySharePrices
 import models.api_extracts.DiffbotExtract
 
 /**
