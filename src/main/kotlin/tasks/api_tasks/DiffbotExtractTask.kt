@@ -81,7 +81,7 @@ class DiffbotExtractTask :
                     article[DailyNewsArticles.apiResponseKey] == symbolSearchKey
                 }
 
-            if (newsArticlesToday.isNotEmpty()) {
+            if (relevantNewsArticles.isNotEmpty()) {
                 logger.info("Fetching Diffbot Extract Data for $coin; $today")
                 relevantNewsArticles.forEach { article ->
                     val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")

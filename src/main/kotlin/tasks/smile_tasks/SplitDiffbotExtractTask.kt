@@ -2,13 +2,14 @@ package tasks.smile_tasks
 
 import appConfig
 import kotlinx.coroutines.coroutineScope
-import models.api_extracts.DiffbotExtract
 import models.api_enhancements.DiffbotExtractSplits
+import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import smile.nlp.sentences
+import kotlin.collections.forEach
 
 /**
  * Task to split existing diffbot extracts into individual sentences.
@@ -16,7 +17,7 @@ import smile.nlp.sentences
 class SplitDiffbotExtractTask :
     SmileTask(
         taskName = "splitDiffbotExtract",
-        taskSchedule = "15 9 * * *",
+        taskSchedule = "* * * * *",
     ) {
     val cryptoCoins = appConfig.getCryptoCoins()
 
@@ -37,51 +38,40 @@ class SplitDiffbotExtractTask :
      */
     suspend fun splitDiffbotExtract() {
         coroutineScope {
-            for (symbol in cryptoCoins) {
+            for (coin in cryptoCoins) {
                 val diffbotExtractData: List<ResultRow> = retrieveDiffbotExtracts()
-                val symbolSearchKey = "$symbol-$today"
+                val symbolSearchKey = "$coin-$today"
 
-                logger.info("Fetching Diffbot Extract Data for $symbol on $today")
-                val newsArticle: ResultRow? =
-                    diffbotExtractData.find { article ->
+                logger.info("Fetching Diffbot Extract Data for $coin on $today")
+                val relevantNewsArticles =
+                    diffbotExtractData.filter { article ->
                         article[DiffbotExtract.apiResponseKey] == symbolSearchKey
                     }
 
-                if (newsArticle != null) {
-                    val newsArticleText: String =
-                        newsArticle[DiffbotExtract.summary]
-                            .toString()
-                            .replace(":", " -")
-                            .replace("\"", "")
-
+                if (relevantNewsArticles.isNotEmpty()) {
                     transaction {
-                        val existingSplitArticle: Long =
-                            DiffbotExtractSplits
-                                .select {
-                                    DiffbotExtractSplits.apiResponseKey eq
-                                        "$symbol-$today"
-                                }.count()
-                        if (existingSplitArticle > 0) {
-                            logger.info("Data Already Exists For $symbol on $today")
-                        } else {
+                        relevantNewsArticles.forEach { article ->
+                            val newsArticleText: String =
+                                article[DiffbotExtract.summary]
+                                    .toString()
+                                    .replace(":", " -")
+                                    .replace("\"", "")
                             val splitSentences: Array<String> = newsArticleText.sentences()
-                            var sentenceCountId = 0
-                            logger.info("Inserting ${splitSentences.size} Sentences For $symbol on $today")
-                            for (sentence in splitSentences) {
-                                sentenceCountId = sentenceCountId + 1
-                                if (sentence.isNotEmpty()) {
-                                    DiffbotExtractSplits.insert {
-                                        it[diffbotExtractId] = "$symbolSearchKey-$sentenceCountId"
-                                        it[apiResponseKey] = symbolSearchKey
-                                        it[diffbotExtractSentence] = sentence
-                                        it[createdAt] = today
-                                    }
+                            logger.info(
+                                "Inserting ${splitSentences.size} Sentences For " +
+                                    "$article[DiffbotExtract.apiResponseArticleKey]",
+                            )
+                            splitSentences.filter { it.isNotEmpty() }.forEachIndexed { index, sentence ->
+                                DiffbotExtractSplits.insert {
+                                    it[diffbotExtractId] = "$symbolSearchKey-${index + 1}"
+                                    it[apiResponseKey] = symbolSearchKey
+                                    it[apiResponseArticleKey] = article[DiffbotExtract.apiResponseArticleKey]
+                                    it[diffbotExtractSentence] = sentence
+                                    it[createdAt] = today
                                 }
                             }
                         }
                     }
-                } else {
-                    logger.info("No Diffbot Extract Exists for $symbol on $today")
                 }
             }
         }

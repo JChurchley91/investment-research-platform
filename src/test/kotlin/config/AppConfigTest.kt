@@ -39,7 +39,7 @@ class AppConfigTest :
                     "coinPrices",
                     "dailyNewsSearch",
                     "diffbotExtract",
-                    "splitDiffbotExtract"
+                    "splitDiffbotExtract",
                 )
             val returnedTaskNames = appConfig.getTasksToSchedule().map { it.taskName.get() }
             returnedTaskNames shouldBe expectedTasks

@@ -20,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "* * * * *",
+        taskSchedule = "5 9 * * *",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
     val appConfig: AppConfig = AppConfig()
