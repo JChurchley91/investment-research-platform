@@ -3,7 +3,7 @@ package tasks.smile_tasks
 import appConfig
 import kotlinx.coroutines.coroutineScope
 import models.api_extracts.DiffbotExtract
-import models.api_transforms.DiffbotExtractSplits
+import models.api_enhancements.DiffbotExtractSplits
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select

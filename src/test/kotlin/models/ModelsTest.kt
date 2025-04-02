@@ -16,14 +16,12 @@ class ModelsTest :
         lateinit var api: ApiResponses
         lateinit var dailyNews: DailyNewsArticles
         lateinit var dailyCoin: DailyCoinPrices
-        lateinit var dailyShare: DailySharePrices
         lateinit var diffbot: DiffbotExtract
 
         beforeTest {
             api = ApiResponses
             dailyNews = DailyNewsArticles
             dailyCoin = DailyCoinPrices
-            dailyShare = DailySharePrices
             diffbot = DiffbotExtract
         }
 
@@ -37,10 +35,6 @@ class ModelsTest :
 
         test("DailyCoinPrices should have the correct table name") {
             dailyCoin.tableName shouldBe "raw.daily_coin_prices"
-        }
-
-        test("DailySharePrices should have the correct table name") {
-            dailyShare.tableName shouldBe "raw.daily_share_prices"
         }
 
         test("DiffbotExtract should have the correct table name") {
