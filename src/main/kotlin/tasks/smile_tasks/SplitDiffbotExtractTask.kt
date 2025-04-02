@@ -17,7 +17,7 @@ import kotlin.collections.forEach
 class SplitDiffbotExtractTask :
     SmileTask(
         taskName = "splitDiffbotExtract",
-        taskSchedule = "* * * * *",
+        taskSchedule = "15 9 * * *",
     ) {
     val cryptoCoins = appConfig.getCryptoCoins()
 

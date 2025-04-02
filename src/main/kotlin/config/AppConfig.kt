@@ -50,6 +50,11 @@ class AppConfig {
     fun getCryptoCoins(): List<String> =
         listOf(
             "BTC",
+            "ETH",
+            "ADA",
+            "XRP",
+            "SOL",
+            "DOT",
         )
 
     /**
