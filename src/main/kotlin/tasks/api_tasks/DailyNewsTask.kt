@@ -68,6 +68,7 @@ class DailyNewsTask :
 
     /**
      * Insert the daily news for a given coin into the database.
+     * Inserts the top 5 news articles for each coin.
      * @param item The item to be inserted.
      * @param apiKey The API key for authentication.
      */
@@ -75,7 +76,6 @@ class DailyNewsTask :
         item: String,
         apiKey: String,
     ) {
-        logger.info("Fetching News Articles for $item")
         val httpResponse: HttpResponse =
             client.get(
                 "$apiUrl&tickers=CRYPTO:$item&sort=RELEVANCE&limit=5&apikey=$apiKey",
@@ -86,24 +86,19 @@ class DailyNewsTask :
         val top5NewsSentimentFeed = newsSentimentFeed.newsSentimentFeed.take(5)
 
         transaction {
-            if (checkExistingApiResponse(item)) {
-                logger.info("Data already exists for $item on $today")
-                return@transaction
-            } else {
-                insertApiResponse(item, httpResponse)
-                var articleValueKey = 0
-                top5NewsSentimentFeed.forEach { newsSentimentFeed ->
-                    articleValueKey = articleValueKey + 1
-                    insertNewsArticle(
-                        item,
-                        newsSentimentFeed["title"].toString(),
-                        newsSentimentFeed["url"].toString(),
-                        articleValueKey,
-                        newsSentimentFeed["source_domain"].toString(),
-                        newsSentimentFeed["overall_sentiment_score"]!!.jsonPrimitive.double,
-                        newsSentimentFeed["overall_sentiment_label"].toString(),
-                    )
-                }
+            insertApiResponse(item, httpResponse)
+            var articleValueKey = 0
+            top5NewsSentimentFeed.forEach { newsSentimentFeed ->
+                articleValueKey = articleValueKey + 1
+                insertNewsArticle(
+                    item,
+                    newsSentimentFeed["title"].toString(),
+                    newsSentimentFeed["url"].toString(),
+                    articleValueKey,
+                    newsSentimentFeed["source_domain"].toString(),
+                    newsSentimentFeed["overall_sentiment_score"]!!.jsonPrimitive.double,
+                    newsSentimentFeed["overall_sentiment_label"].toString(),
+                )
             }
         }
     }
@@ -117,6 +112,7 @@ class DailyNewsTask :
         val secretManager = SecretManager()
         val apiKey: String = secretManager.getSecret(apiKeyName)
         for (item in cryptoCoins) {
+            logger.info("Fetching News Articles for $item")
             processCryptoCoinArticle(item, apiKey)
         }
     }

@@ -51,6 +51,7 @@ class SplitDiffbotExtractTask :
                 if (relevantNewsArticles.isNotEmpty()) {
                     transaction {
                         relevantNewsArticles.forEach { article ->
+                            logger.info("Splitting news article for $article[DiffbotExtract.apiResponseArticleKey]")
                             val newsArticleText: String =
                                 article[DiffbotExtract.summary]
                                     .toString()

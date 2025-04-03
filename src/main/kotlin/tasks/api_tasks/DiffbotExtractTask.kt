@@ -39,6 +39,8 @@ class DiffbotExtractTask :
      * Inserts the Diffbot API response into the database.
      *
      * @param symbol The symbol of the item.
+     * @param summaryValue The summary of the extracted news article.
+     * @param apiResponseArticleKeyValue The key used to store the article in the raw database.
      */
     fun insertDiffbotExtract(
         symbol: String,
@@ -68,6 +70,7 @@ class DiffbotExtractTask :
 
     /**
      * Calls the Diffbot API to fetch extracts for the news articles.
+     * Stores the summary of the news article into the enhanced schema of the database.
      */
     suspend fun callApi() {
         val newsArticlesToday: List<ResultRow> = getNewsArticles()
@@ -84,6 +87,7 @@ class DiffbotExtractTask :
             if (relevantNewsArticles.isNotEmpty()) {
                 logger.info("Fetching Diffbot Extract Data for $coin; $today")
                 relevantNewsArticles.forEach { article ->
+                    logger.info("Fetching Diffbot Extract Data for ${article[DailyNewsArticles.title]}")
                     val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")
                     val httpResponse: HttpResponse =
                         client.get(
