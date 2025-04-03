@@ -13,6 +13,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import models.api_extracts.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Task to fetch and store daily news articles from the Alpha Vantage API.
@@ -26,6 +28,7 @@ class DailyNewsTask :
     val appConfig: AppConfig = AppConfig()
     val cryptoCoins: List<String> = appConfig.getCryptoCoins()
     val apiKeyName: String = "alpha-vantage-key"
+    val timeFrom: String = today.minusDays(1).atStartOfDay().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmm"))
 
     /**
      * Data class representing the response from the Alpha Vantage API.
@@ -78,7 +81,8 @@ class DailyNewsTask :
     ) {
         val httpResponse: HttpResponse =
             client.get(
-                "$apiUrl&tickers=CRYPTO:$item&sort=RELEVANCE&limit=5&apikey=$apiKey",
+                "$apiUrl&tickers=CRYPTO:$item&time_from=$timeFrom" +
+                        "&sort=RELEVANCE&limit=5&apikey=$apiKey",
             )
 
         val responseBody: String = httpResponse.body()

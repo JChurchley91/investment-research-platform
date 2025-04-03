@@ -11,5 +11,5 @@ data class TaskConfig(
     val taskFunction: KSuspendFunction0<Unit>,
     val taskName: KProperty0<String>,
     val taskSchedule: KProperty0<String>,
-    val taskParameters: KProperty0<List<Any>>,
+    val taskParameters: KProperty0<List<Any>?>,
 )
