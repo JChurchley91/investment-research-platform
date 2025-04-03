@@ -4,9 +4,7 @@ import azure.DatabaseFactory
 import models.api_extracts.ApiResponses
 import models.api_extracts.DailyCoinPrices
 import models.api_extracts.DailyNewsArticles
-import models.api_extracts.DailySharePrices
 import models.api_extracts.DiffbotExtract
-import models.api_transforms.DiffbotExtractSplits
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -16,8 +14,6 @@ import scheduler
 import tasks.api_tasks.CoinPricesTask
 import tasks.api_tasks.DailyNewsTask
 import tasks.api_tasks.DiffbotExtractTask
-import tasks.api_tasks.SharePricesTask
-import tasks.smile_tasks.SplitDiffbotExtractTask
 
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
@@ -29,7 +25,7 @@ class AppConfig {
     fun getSchemas(): List<String> =
         listOf(
             "raw",
-            "transformed",
+            "enhanced",
         )
 
     /**
@@ -41,22 +37,7 @@ class AppConfig {
             ApiResponses,
             DailyNewsArticles,
             DailyCoinPrices,
-            DailySharePrices,
             DiffbotExtract,
-            DiffbotExtractSplits,
-        )
-
-    /**
-     * Manually updated list of share price tickers.
-     * @return List of share price tickers to be used in the application.
-     */
-    fun getSharePriceTickers(): List<String> =
-        listOf(
-            "AAPL",
-            "GOOG",
-            "MSFT",
-            "AMZN",
-            "META",
         )
 
     /**
@@ -70,6 +51,7 @@ class AppConfig {
             "ADA",
             "XRP",
             "SOL",
+            "DOT",
         )
 
     /**
@@ -85,28 +67,16 @@ class AppConfig {
                 CoinPricesTask()::cryptoCoins,
             ),
             TaskConfig(
-                SharePricesTask()::callApi,
-                SharePricesTask()::taskName,
-                SharePricesTask()::taskSchedule,
-                SharePricesTask()::sharePriceTickers,
-            ),
-            TaskConfig(
                 DailyNewsTask()::callApi,
                 DailyNewsTask()::taskName,
                 DailyNewsTask()::taskSchedule,
-                DailyNewsTask()::listOfSymbols,
+                DailyNewsTask()::cryptoCoins,
             ),
             TaskConfig(
                 DiffbotExtractTask()::callApi,
                 DiffbotExtractTask()::taskName,
                 DiffbotExtractTask()::taskSchedule,
-                DiffbotExtractTask()::listOfSymbols,
-            ),
-            TaskConfig(
-                SplitDiffbotExtractTask()::splitDiffbotExtract,
-                SplitDiffbotExtractTask()::taskName,
-                SplitDiffbotExtractTask()::taskSchedule,
-                SplitDiffbotExtractTask()::listOfSymbols,
+                DiffbotExtractTask()::cryptoCoins,
             ),
         )
 

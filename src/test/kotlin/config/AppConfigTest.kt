@@ -15,7 +15,7 @@ class AppConfigTest :
             appConfig = AppConfig()
         }
         test("AppConfig should return the correct schemas") {
-            val expectedSchemas = listOf("raw")
+            val expectedSchemas = listOf("raw", "enhanced")
             appConfig.getSchemas() shouldBe expectedSchemas
         }
         test("AppConfig should return the correct database tables") {
@@ -24,24 +24,18 @@ class AppConfigTest :
                     "raw.api_responses",
                     "raw.daily_news_articles",
                     "raw.daily_coin_prices",
-                    "raw.daily_share_prices",
                     "raw.diffbot_extracts",
                 )
             appConfig.getDatabaseTables().map { it.tableName } shouldBe expectedTables
         }
-        test("AppConfig should return the correct share price tickers") {
-            val expectedTickers = listOf("AAPL", "GOOGL", "MSFT", "AMZN", "META")
-            appConfig.getSharePriceTickers() shouldBe expectedTickers
-        }
         test("AppConfig should return the correct crypto coins") {
-            val expectedCoins = listOf("BTC", "ETH", "ADA", "XRP", "SOL")
+            val expectedCoins = listOf("BTC", "ETH", "ADA", "XRP", "SOL", "DOT")
             appConfig.getCryptoCoins() shouldBe expectedCoins
         }
         test("AppConfig should return the correct tasks to schedule") {
             val expectedTasks =
                 listOf(
                     "coinPrices",
-                    "sharePrices",
                     "dailyNewsSearch",
                     "diffbotExtract",
                 )

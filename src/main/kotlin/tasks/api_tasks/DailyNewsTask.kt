@@ -8,6 +8,8 @@ import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonPrimitive
 import models.api_extracts.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,13 +20,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "10 9 * * *",
+        taskSchedule = "5 9 * * *",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
     val appConfig: AppConfig = AppConfig()
-    val sharePriceTickers: List<String> = appConfig.getSharePriceTickers()
     val cryptoCoins: List<String> = appConfig.getCryptoCoins()
-    val listOfSymbols = appConfig.getSharePriceTickers() + appConfig.getCryptoCoins()
     val apiKeyName: String = "alpha-vantage-key"
 
     /**
@@ -47,7 +47,9 @@ class DailyNewsTask :
         tickerValue: String,
         titleValue: String,
         urlValue: String,
+        apiResponseArticleKeyValue: Int,
         sourceDomainValue: String,
+        overallSentimentScoreValue: Double,
         overallSentimentLabelValue: String,
     ) {
         logger.info("Inserting News Article Data For $tickerValue")
@@ -55,58 +57,48 @@ class DailyNewsTask :
             it[apiResponseKey] = "$tickerValue-$today"
             it[title] = titleValue
             it[task] = taskName
+            it[apiResponseArticleKey] = "$tickerValue-$today-$apiResponseArticleKeyValue"
             it[url] = urlValue
             it[sourceDomain] = sourceDomainValue
             it[overallSentimentLabel] = overallSentimentLabelValue
+            it[overallSentimentScore] = overallSentimentScoreValue
             it[createdAt] = today
         }
     }
 
     /**
-     * Insert either the share price or coin API response into the database.
+     * Insert the daily news for a given coin into the database.
+     * Inserts the top 5 news articles for each coin.
      * @param item The item to be inserted.
-     * @param itemType The type of the item (either "sharePrices" or "cryptoCoins").
      * @param apiKey The API key for authentication.
      */
-    suspend fun processShareTickerValueOrCoin(
+    suspend fun processCryptoCoinArticle(
         item: String,
-        itemType: String,
         apiKey: String,
     ) {
-        logger.info("Fetching News Articles for $item")
-        if (itemType != "sharePrices" && itemType != "cryptoCoins") {
-            logger.error("Invalid item type; Must be either 'sharePrices' or 'cryptoCoins'")
-            return
-        } else {
-            val httpResponse: HttpResponse =
-                if (itemType == "sharePrices") {
-                    client.get(
-                        "$apiUrl&tickers=$item&sort=LATEST&limit=1&apikey=$apiKey",
-                    )
-                } else {
-                    client.get(
-                        "$apiUrl&tickers=CRYPTO:$item&sort=LATEST&limit=1&apikey=$apiKey",
-                    )
-                }
+        val httpResponse: HttpResponse =
+            client.get(
+                "$apiUrl&tickers=CRYPTO:$item&sort=RELEVANCE&limit=5&apikey=$apiKey",
+            )
 
-            val responseBody: String = httpResponse.body()
-            val newsSentimentFeed: NewsSentimentFeed = defaultJson.decodeFromString(responseBody)
-            val topNewsSentimentFeed = newsSentimentFeed.newsSentimentFeed[0]
+        val responseBody: String = httpResponse.body()
+        val newsSentimentFeed: NewsSentimentFeed = defaultJson.decodeFromString(responseBody)
+        val top5NewsSentimentFeed = newsSentimentFeed.newsSentimentFeed.take(5)
 
-            transaction {
-                if (checkExistingApiResponse(item)) {
-                    logger.info("Data already exists for $item on $today")
-                    return@transaction
-                } else {
-                    insertApiResponse(item, httpResponse)
-                    insertNewsArticle(
-                        item,
-                        topNewsSentimentFeed["title"].toString(),
-                        topNewsSentimentFeed["url"].toString(),
-                        topNewsSentimentFeed["source_domain"].toString(),
-                        topNewsSentimentFeed["overall_sentiment_label"].toString(),
-                    )
-                }
+        transaction {
+            insertApiResponse(item, httpResponse)
+            var articleValueKey = 0
+            top5NewsSentimentFeed.forEach { newsSentimentFeed ->
+                articleValueKey = articleValueKey + 1
+                insertNewsArticle(
+                    item,
+                    newsSentimentFeed["title"].toString(),
+                    newsSentimentFeed["url"].toString(),
+                    articleValueKey,
+                    newsSentimentFeed["source_domain"].toString(),
+                    newsSentimentFeed["overall_sentiment_score"]!!.jsonPrimitive.double,
+                    newsSentimentFeed["overall_sentiment_label"].toString(),
+                )
             }
         }
     }
@@ -119,11 +111,9 @@ class DailyNewsTask :
         logger.info("Calling API; Fetching News Articles")
         val secretManager = SecretManager()
         val apiKey: String = secretManager.getSecret(apiKeyName)
-        for (item in sharePriceTickers) {
-            processShareTickerValueOrCoin(item, "sharePrices", apiKey)
-        }
         for (item in cryptoCoins) {
-            processShareTickerValueOrCoin(item, "cryptoCoins", apiKey)
+            logger.info("Fetching News Articles for $item")
+            processCryptoCoinArticle(item, apiKey)
         }
     }
 }

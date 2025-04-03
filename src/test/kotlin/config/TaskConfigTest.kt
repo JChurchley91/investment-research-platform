@@ -40,7 +40,7 @@ class TaskConfigTest :
         }
 
         test("TaskConfig should return the correct task parameters") {
-            val expectedTaskParameters = listOf("BTC", "ETH", "ADA", "XRP", "SOL")
+            val expectedTaskParameters = listOf("BTC", "ETH", "ADA", "XRP", "SOL", "DOT")
             taskConfig.taskParameters.get() shouldBe expectedTaskParameters
         }
     })

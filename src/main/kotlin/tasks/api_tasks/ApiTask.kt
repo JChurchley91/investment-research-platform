@@ -72,7 +72,6 @@ open class ApiTask(
             it[apiResponseTaskKey] = "$item-$today-$taskName"
             it[task] = taskName
             it[status] = httpResponse.status.toString()
-            it[response] = httpResponse.toString()
             it[createdAt] = today
         }
     }
