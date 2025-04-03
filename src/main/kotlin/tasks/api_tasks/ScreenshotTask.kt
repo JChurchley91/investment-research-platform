@@ -10,7 +10,6 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.File
 
 /**
  * Task to capture screenshots of daily news articles.
@@ -18,7 +17,7 @@ import java.io.File
 class ScreenshotTask :
     ApiTask(
         taskName = "dailyNewsScreenshot",
-        taskSchedule = "30 9 * * *",
+        taskSchedule = "45 8 * * *",
         apiUrl = "https://screenshot.abstractapi.com/v1",
     ) {
     val apiKeyName: String = "abstract-api-key"

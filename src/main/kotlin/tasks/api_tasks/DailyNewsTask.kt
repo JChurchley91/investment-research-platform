@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 class DailyNewsTask :
     ApiTask(
         taskName = "dailyNewsSearch",
-        taskSchedule = "5 9 * * *",
+        taskSchedule = "45 7 * * *",
         apiUrl = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT",
     ) {
     val appConfig: AppConfig = AppConfig()

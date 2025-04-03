@@ -20,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
-        taskSchedule = "10 9 * * *",
+        taskSchedule = "* 8 * * *",
         apiUrl = "https://api.diffbot.com/v3/article?",
     ) {
     val appConfig: AppConfig = AppConfig()
