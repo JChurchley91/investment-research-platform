@@ -87,7 +87,7 @@ class DiffbotExtractTask :
             if (relevantNewsArticles.isNotEmpty()) {
                 logger.info("Fetching Diffbot Extract Data for $coin; $today")
                 relevantNewsArticles.forEach { article ->
-                    logger.info("Fetching Diffbot Extract Data for ${article[DailyNewsArticles.title]}")
+                    logger.info("Fetching Diffbot Extract Data")
                     val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")
                     val httpResponse: HttpResponse =
                         client.get(

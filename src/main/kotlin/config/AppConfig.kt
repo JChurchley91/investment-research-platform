@@ -1,7 +1,6 @@
 package config
 
 import azure.DatabaseFactory
-import models.api_enhancements.DiffbotExtractSplits
 import models.api_extracts.ApiResponses
 import models.api_extracts.DailyCoinPrices
 import models.api_extracts.DailyNewsArticles
@@ -15,7 +14,6 @@ import scheduler
 import tasks.api_tasks.CoinPricesTask
 import tasks.api_tasks.DailyNewsTask
 import tasks.api_tasks.DiffbotExtractTask
-import tasks.smile_tasks.SplitDiffbotExtractTask
 
 val logger: Logger = LoggerFactory.getLogger("AppConfig")
 
@@ -40,7 +38,6 @@ class AppConfig {
             DailyNewsArticles,
             DailyCoinPrices,
             DiffbotExtract,
-            DiffbotExtractSplits,
         )
 
     /**
@@ -80,12 +77,6 @@ class AppConfig {
                 DiffbotExtractTask()::taskName,
                 DiffbotExtractTask()::taskSchedule,
                 DiffbotExtractTask()::cryptoCoins,
-            ),
-            TaskConfig(
-                SplitDiffbotExtractTask()::splitDiffbotExtract,
-                SplitDiffbotExtractTask()::taskName,
-                SplitDiffbotExtractTask()::taskSchedule,
-                SplitDiffbotExtractTask()::cryptoCoins,
             ),
         )
 

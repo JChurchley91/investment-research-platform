@@ -40,8 +40,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
     testImplementation("io.kotest:kotest-assertions-core:5.7.2")
     testImplementation("io.kotest:kotest-property:5.7.2")
-    implementation("com.github.haifengl:smile-kotlin:4.3.0")
-    implementation("org.jsoup:jsoup:1.16.1")
 }
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
