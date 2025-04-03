@@ -20,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DiffbotExtractTask :
     ApiTask(
         taskName = "diffbotExtract",
-        taskSchedule = "10 9 * * *",
+        taskSchedule = "* 8 * * *",
         apiUrl = "https://api.diffbot.com/v3/article?",
     ) {
     val appConfig: AppConfig = AppConfig()
@@ -92,7 +92,7 @@ class DiffbotExtractTask :
                     val httpResponse: HttpResponse =
                         client.get(
                             "$apiUrl&token=$apiKey&naturalLanguage=summary" +
-                                "&summaryNumSentences=5&url=$newsArticleUrl",
+                                    "&summaryNumSentences=5&url=$newsArticleUrl",
                         )
                     val responseBody: String = httpResponse.body()
                     val diffbotExtractObject: DiffBotExtractObjects = defaultJson.decodeFromString(responseBody)
@@ -111,6 +111,8 @@ class DiffbotExtractTask :
                     }
                 }
             }
+            logger.info("Pausing For 60 Seconds")
+            Thread.sleep(60000)
         }
     }
 }

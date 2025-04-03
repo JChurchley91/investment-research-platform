@@ -20,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class CoinPricesTask :
     ApiTask(
         taskName = "coinPrices",
-        taskSchedule = "* 9 * * *",
+        taskSchedule = "30 7 * * *",
         apiUrl = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY",
     ) {
     val appConfig: AppConfig = AppConfig()
