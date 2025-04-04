@@ -6,6 +6,8 @@ import models.api_extracts.ApiResponses
 import models.api_extracts.DailyCoinPrices
 import models.api_extracts.DailyNewsArticles
 import models.api_extracts.DiffbotExtract
+import models.api_extracts.DailyNewsScreenshots
+import models.api_extracts.DailyTopNews
 
 /**
  * Test class for Models.
@@ -39,5 +41,13 @@ class ModelsTest :
 
         test("DiffbotExtract should have the correct table name") {
             diffbot.tableName shouldBe "raw.diffbot_extracts"
+        }
+
+        test("DailyNewsScreenshots should have the correct table name") {
+            DailyNewsScreenshots.tableName shouldBe "raw.daily_news_screenshots"
+        }
+
+        test("DailyTopNews should have the correct table name") {
+            DailyTopNews.tableName shouldBe "raw.daily_top_news"
         }
     })
