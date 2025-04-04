@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DailyTopNewsTask :
     ApiTask(
         taskName = "dailyTopNews",
-        taskSchedule = "* * * * *",
+        taskSchedule = "* 12 * * *",
         apiUrl = "https://api.worldnewsapi.com/top-news",
     ) {
     val apiKeyName: String = "world-news-api"
