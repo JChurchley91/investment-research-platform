@@ -37,7 +37,8 @@ class ScreenshotTask :
     fun insertImage(
         apiResponseKeyValue: String,
         apiResponseArticleKeyValue: String,
-        imageBytes: ByteArray) {
+        imageBytes: ByteArray,
+    ) {
         transaction {
             DailyNewsScreenshots.insert {
                 it[apiResponseKey] = apiResponseKeyValue
@@ -48,26 +49,26 @@ class ScreenshotTask :
         }
     }
 
-
     suspend fun callApi() {
         val secretManager = SecretManager()
         val apiKey: String? = secretManager.getSecret(apiKeyName)
         newsArticlesToday = getNewsArticles()
 
-            if (newsArticlesToday != null) {
-                for (article in newsArticlesToday) {
-                    logger.info("Fetching Screenshot Data")
-                    val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")
-                    val httpResponse: HttpResponse =
-                        client.get("$apiUrl?url=$newsArticleUrl&api_key=$apiKey")
-                    val imageBytes: ByteArray = httpResponse.body()
-                    logger.info("Inserting Screenshot Data")
-                    insertImage(
-                        article[DailyNewsArticles.apiResponseKey].toString(),
-                        article[DailyNewsArticles.apiResponseArticleKey].toString(),
-                        imageBytes
-                    )
-                }
+        if (newsArticlesToday != null) {
+            for (article in newsArticlesToday) {
+                logger.info("Fetching Screenshot Data")
+                val newsArticleUrl: String = article[DailyNewsArticles.url].replace("\"", "")
+                val httpResponse: HttpResponse =
+                    client.get("$apiUrl?url=$newsArticleUrl&api_key=$apiKey")
+                insertApiResponse(article[DailyNewsArticles.title], httpResponse)
+                val imageBytes: ByteArray = httpResponse.body()
+                logger.info("Inserting Screenshot Data")
+                insertImage(
+                    article[DailyNewsArticles.apiResponseKey].toString(),
+                    article[DailyNewsArticles.apiResponseArticleKey].toString(),
+                    imageBytes,
+                )
             }
         }
     }
+}

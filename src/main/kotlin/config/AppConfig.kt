@@ -4,8 +4,9 @@ import azure.DatabaseFactory
 import models.api_extracts.ApiResponses
 import models.api_extracts.DailyCoinPrices
 import models.api_extracts.DailyNewsArticles
-import models.api_extracts.DiffbotExtract
 import models.api_extracts.DailyNewsScreenshots
+import models.api_extracts.DailyTopNews
+import models.api_extracts.DiffbotExtract
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 import scheduler
 import tasks.api_tasks.CoinPricesTask
 import tasks.api_tasks.DailyNewsTask
+import tasks.api_tasks.DailyTopNewsTask
 import tasks.api_tasks.DiffbotExtractTask
 import tasks.api_tasks.ScreenshotTask
 
@@ -40,7 +42,8 @@ class AppConfig {
             DailyNewsArticles,
             DailyCoinPrices,
             DiffbotExtract,
-            DailyNewsScreenshots
+            DailyNewsScreenshots,
+            DailyTopNews,
         )
 
     /**
@@ -85,8 +88,14 @@ class AppConfig {
                 ScreenshotTask()::callApi,
                 ScreenshotTask()::taskName,
                 ScreenshotTask()::taskSchedule,
-                ScreenshotTask()::newsArticlesToday
-            )
+                ScreenshotTask()::newsArticlesToday,
+            ),
+            TaskConfig(
+                DailyTopNewsTask()::callApi,
+                DailyTopNewsTask()::taskName,
+                DailyTopNewsTask()::taskSchedule,
+                DailyTopNewsTask()::newsMarkets,
+            ),
         )
 
     /**

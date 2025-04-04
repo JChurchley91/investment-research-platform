@@ -26,6 +26,7 @@ class AppConfigTest :
                     "raw.daily_coin_prices",
                     "raw.diffbot_extracts",
                     "raw.daily_news_screenshots",
+                    "raw.daily_top_news",
                 )
             appConfig.getDatabaseTables().map { it.tableName } shouldBe expectedTables
         }
@@ -40,6 +41,7 @@ class AppConfigTest :
                     "dailyNewsSearch",
                     "diffbotExtract",
                     "dailyNewsScreenshot",
+                    "dailyTopNews",
                 )
             val returnedTaskNames = appConfig.getTasksToSchedule().map { it.taskName.get() }
             returnedTaskNames shouldBe expectedTasks
