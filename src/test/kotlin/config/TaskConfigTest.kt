@@ -30,7 +30,7 @@ class TaskConfigTest :
         }
 
         test("TaskConfig should return the correct task schedule") {
-            val expectedTaskSchedule = "* 9 * * *"
+            val expectedTaskSchedule = "30 7 * * *"
             taskConfig.taskSchedule.get() shouldBe expectedTaskSchedule
         }
 

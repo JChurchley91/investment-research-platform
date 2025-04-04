@@ -13,7 +13,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import models.api_extracts.DailyNewsArticles
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
@@ -82,7 +81,7 @@ class DailyNewsTask :
         val httpResponse: HttpResponse =
             client.get(
                 "$apiUrl&tickers=CRYPTO:$item&time_from=$timeFrom" +
-                        "&sort=RELEVANCE&limit=5&apikey=$apiKey",
+                    "&sort=RELEVANCE&limit=5&apikey=$apiKey",
             )
 
         val responseBody: String = httpResponse.body()
